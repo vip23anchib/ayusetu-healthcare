@@ -125,15 +125,23 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         except PreVisitSummary.DoesNotExist:
             return Response({"detail": "Pre-visit summary not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    @action(detail=True, methods=['post'], url_path='consultation')
+    @action(detail=True, methods=['get', 'post'], url_path='consultation')
     def consultation(self, request, pk=None):
+        appointment = self.get_object()
+        from consultations.serializers import ConsultationCreateSerializer, ConsultationSerializer
+        
+        if request.method == 'GET':
+            from consultations.models import Consultation
+            try:
+                consult = Consultation.objects.get(appointment=appointment)
+                return Response(ConsultationSerializer(consult).data)
+            except Consultation.DoesNotExist:
+                return Response({"detail": "Consultation details not found."}, status=status.HTTP_404_NOT_FOUND)
+
         if request.user.role not in ['DOCTOR', 'ADMIN']:
             return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
             
-        appointment = self.get_object()
-        from consultations.serializers import ConsultationCreateSerializer, ConsultationSerializer
         from consultations.services import create_consultation
-        
         serializer = ConsultationCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
