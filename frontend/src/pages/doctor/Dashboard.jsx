@@ -198,7 +198,7 @@ const DoctorDashboard = () => {
                         
                         {appt.status === 'CONFIRMED' && (
                           <button
-                            onClick={() => navigate(`/doctor/consult/${appt.id}`)}
+                            onClick={() => navigate(`/doctor/appointments/${appt.id}/consult`)}
                             className="bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold py-2 px-4 rounded-xl transition-all shadow-sm"
                           >
                             Consult Patient
