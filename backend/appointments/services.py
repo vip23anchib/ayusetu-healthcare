@@ -29,8 +29,8 @@ def generate_available_slots(doctor_id, check_date):
 
     # 2. Get working hours for the day of week
     day_of_week = check_date.weekday()  # Monday=0, Sunday=6
-    working_hours = DoctorWorkingHours.objects.filter(doctor=doctor, day_of_week=day_of_week).first()
-    if not working_hours:
+    working_hours_list = DoctorWorkingHours.objects.filter(doctor=doctor, day_of_week=day_of_week)
+    if not working_hours_list.exists():
         return []
 
     # 3. Get active appointments and holds
@@ -47,30 +47,34 @@ def generate_available_slots(doctor_id, check_date):
 
     # 4. Segment working hours into slot duration chunks
     slots = []
-    current_dt = datetime.combine(check_date, working_hours.start_time)
-    end_dt = datetime.combine(check_date, working_hours.end_time)
     duration = timedelta(minutes=doctor.slot_duration)
 
-    while current_dt + duration <= end_dt:
-        slot_start = current_dt.time()
-        slot_end = (current_dt + duration).time()
-        
-        # Format string time
-        start_str = slot_start.strftime("%H:%M:%S")
-        end_str = slot_end.strftime("%H:%M:%S")
+    for wh in working_hours_list:
+        current_dt = datetime.combine(check_date, wh.start_time)
+        end_dt = datetime.combine(check_date, wh.end_time)
 
-        # Check if slot is available (not occupied and not in past if today)
-        is_available = slot_start not in active_slots
-        if check_date == date.today():
-            is_available = is_available and current_dt > datetime.now()
+        while current_dt + duration <= end_dt:
+            slot_start = current_dt.time()
+            slot_end = (current_dt + duration).time()
+            
+            # Format string time
+            start_str = slot_start.strftime("%H:%M:%S")
+            end_str = slot_end.strftime("%H:%M:%S")
 
-        slots.append({
-            'start_time': start_str,
-            'end_time': end_str,
-            'available': is_available
-        })
-        current_dt += duration
+            # Check if slot is available (not occupied and not in past if today)
+            is_available = slot_start not in active_slots
+            if check_date == date.today():
+                is_available = is_available and current_dt > datetime.now()
 
+            slots.append({
+                'start_time': start_str,
+                'end_time': end_str,
+                'available': is_available
+            })
+            current_dt += duration
+
+    # Sort slots by start_time
+    slots.sort(key=lambda s: s['start_time'])
     return slots
 
 
@@ -104,11 +108,17 @@ def hold_slot(patient, doctor_id, check_date, start_time_str):
 
         # 1. No booking outside working hours
         day_of_week = check_date.weekday()
-        working_hours = DoctorWorkingHours.objects.filter(doctor=doctor, day_of_week=day_of_week).first()
-        if not working_hours:
+        working_hours_list = DoctorWorkingHours.objects.filter(doctor=doctor, day_of_week=day_of_week)
+        if not working_hours_list.exists():
             raise ValidationError("Doctor does not work on this day of the week.")
         
-        if start_time < working_hours.start_time or end_time > working_hours.end_time:
+        in_hours = False
+        for wh in working_hours_list:
+            if start_time >= wh.start_time and end_time <= wh.end_time:
+                in_hours = True
+                break
+        
+        if not in_hours:
             raise ValidationError("Requested slot is outside the doctor's working hours.")
 
         # 2. No booking during leave

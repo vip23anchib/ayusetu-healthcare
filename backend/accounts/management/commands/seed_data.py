@@ -10,14 +10,14 @@ class Command(BaseCommand):
     help = 'Seeds the AyuSetu database with default users, doctors, and slots.'
 
     def handle(self, *args, **options):
-        self.stdout.write("Seeding AyuSetu database...")
+        self.stdout.write("Seeding AyuSetu database with authentic Indian clinic data...")
 
         # 1. Create Admin
         admin_user, created = User.objects.get_or_create(
             email='admin@ayusetu.com',
             defaults={
                 'username': 'admin@ayusetu.com',
-                'name': 'AyuSetu Administrator',
+                'name': 'AyuSetu Multispeciality Clinic Administrator',
                 'role': User.Role.ADMIN,
                 'is_staff': True,
                 'is_superuser': True
@@ -29,51 +29,72 @@ class Command(BaseCommand):
             self.stdout.write("Created Admin: admin@ayusetu.com (password: adminpassword)")
 
         # 2. Create Patients
-        patient_1, created = User.objects.get_or_create(
-            email='patient@ayusetu.com',
-            defaults={
-                'username': 'patient@ayusetu.com',
-                'name': 'Jane Patient',
-                'role': User.Role.PATIENT
-            }
-        )
-        if created:
-            patient_1.set_password('patientpassword')
-            patient_1.save()
-            self.stdout.write("Created Patient 1: patient@ayusetu.com (password: patientpassword)")
+        patient_data = [
+            {'email': 'rohan.malhotra@example.com', 'name': 'Rohan Malhotra'},
+            {'email': 'aditya.sharma@example.com', 'name': 'Aditya Sharma'},
+            {'email': 'priya.nair@example.com', 'name': 'Priya Nair'},
+            {'email': 'kabir.meeta@example.com', 'name': 'Kabir Mehta'}
+        ]
 
-        patient_2, created = User.objects.get_or_create(
-            email='patient2@ayusetu.com',
-            defaults={
-                'username': 'patient2@ayusetu.com',
-                'name': 'John Patient',
-                'role': User.Role.PATIENT
-            }
-        )
-        if created:
-            patient_2.set_password('patientpassword')
-            patient_2.save()
-            self.stdout.write("Created Patient 2: patient2@ayusetu.com (password: patientpassword)")
+        patients_list = []
+        for p in patient_data:
+            p_user, created = User.objects.get_or_create(
+                email=p['email'],
+                defaults={
+                    'username': p['email'],
+                    'name': p['name'],
+                    'role': User.Role.PATIENT
+                }
+            )
+            if created:
+                p_user.set_password('patientpassword')
+                p_user.save()
+                self.stdout.write(f"Created Patient: {p['name']} ({p['email']})")
+            patients_list.append(p_user)
 
         # 3. Create Doctors & Profiles
         doctor_data = [
             {
-                'email': 'heart@ayusetu.com',
-                'name': 'Sarah Heart',
+                'email': 'ananya.reddy@example.com',
+                'name': 'Ananya Reddy',
                 'specialization': 'Cardiology',
-                'slot_duration': 30
+                'slot_duration': 30,
+                'split_shift': False
             },
             {
-                'email': 'brain@ayusetu.com',
-                'name': 'Charles Brain',
-                'specialization': 'Neurology',
-                'slot_duration': 30
+                'email': 'vikram.iyer@example.com',
+                'name': 'Vikram Iyer',
+                'specialization': 'General Physician',
+                'slot_duration': 30,
+                'split_shift': True  # split shift
             },
             {
-                'email': 'child@ayusetu.com',
-                'name': 'Lily Child',
-                'specialization': 'Paediatrics',
-                'slot_duration': 30
+                'email': 'meera.krishnan@example.com',
+                'name': 'Meera Krishnan',
+                'specialization': 'Dermatology',
+                'slot_duration': 30,
+                'split_shift': False
+            },
+            {
+                'email': 'arjun.kapoor@example.com',
+                'name': 'Arjun Kapoor',
+                'specialization': 'Orthopedics',
+                'slot_duration': 30,
+                'split_shift': False
+            },
+            {
+                'email': 'sana.sheikh@example.com',
+                'name': 'Sana Sheikh',
+                'specialization': 'Pediatrics',
+                'slot_duration': 30,
+                'split_shift': False
+            },
+            {
+                'email': 'rajesh.nair@example.com',
+                'name': 'Rajesh Nair',
+                'specialization': 'ENT Specialist',
+                'slot_duration': 30,
+                'split_shift': False
             }
         ]
 
@@ -101,25 +122,40 @@ class Command(BaseCommand):
             )
             doctors_list.append(doctor_profile)
 
-            # Auto-create Mon-Fri working hours (9 AM to 5 PM)
+            # Auto-create Mon-Fri working hours
             if created:
-                for day in range(5):  # Mon-Fri
-                    DoctorWorkingHours.objects.get_or_create(
-                        doctor=doctor_profile,
-                        day_of_week=day,
-                        defaults={
-                            'start_time': datetime.time(9, 0),
-                            'end_time': datetime.time(17, 0)
-                        }
-                    )
-                self.stdout.write(f"Configured standard Mon-Fri hours for Dr. {doc_user.name}")
+                if doc['split_shift']:
+                    # Split shift: 9:00 - 13:00 and 17:00 - 21:00
+                    for day in range(5):
+                        DoctorWorkingHours.objects.create(
+                            doctor=doctor_profile,
+                            day_of_week=day,
+                            start_time=datetime.time(9, 0),
+                            end_time=datetime.time(13, 0)
+                        )
+                        DoctorWorkingHours.objects.create(
+                            doctor=doctor_profile,
+                            day_of_week=day,
+                            start_time=datetime.time(17, 0),
+                            end_time=datetime.time(21, 0)
+                        )
+                    self.stdout.write(f"Configured Split Shift (9:00-13:00 & 17:00-21:00) for Dr. {doc_user.name}")
+                else:
+                    # Standard Mon-Fri working hours (9 AM to 5 PM)
+                    for day in range(5):  # Mon-Fri
+                        DoctorWorkingHours.objects.create(
+                            doctor=doctor_profile,
+                            day_of_week=day,
+                            start_time=datetime.time(9, 0),
+                            end_time=datetime.time(17, 0)
+                        )
+                    self.stdout.write(f"Configured standard Mon-Fri hours for Dr. {doc_user.name}")
 
-        # 4. Create an completed appointment and consultation history
-        # Scheduled yesterday
+        # 4. Create a completed appointment and consultation history
         yesterday = datetime.date.today() - datetime.timedelta(days=1)
         appt_completed, created = Appointment.objects.get_or_create(
-            doctor=doctors_list[0],  # Dr. Heart
-            patient=patient_1,
+            doctor=doctors_list[0],  # Dr. Ananya Reddy (Cardiology)
+            patient=patients_list[0],  # Rohan Malhotra
             appointment_date=yesterday,
             start_time=datetime.time(10, 0),
             defaults={
@@ -133,37 +169,44 @@ class Command(BaseCommand):
             from consultations.models import Symptom
             Symptom.objects.create(
                 appointment=appt_completed,
-                symptoms_text="Experiencing elevated heart rate after drinking coffee."
+                symptoms_text="Fever for 2 days with body ache and mild cough."
             )
             # Create Consultation Checkup
             consult = Consultation.objects.create(
                 appointment=appt_completed,
-                doctor_notes="Patient presented with transient sinus tachycardia. Recommended reducing caffeine intake and monitoring heart rates."
+                doctor_notes="Patient presented with acute viral symptoms. Body aches and fever peaking at 101F. Chest clear on auscultation. Advised hydration and complete rest."
             )
             # Create Prescription
             presc = Prescription.objects.create(consultation=consult)
             Medication.objects.create(
                 prescription=presc,
-                medicine_name="Propranolol",
+                medicine_name="Paracetamol",
+                dosage="650mg",
+                frequency="Three times daily",
+                duration="3 days",
+                instructions="Take after food."
+            )
+            Medication.objects.create(
+                prescription=presc,
+                medicine_name="Cetirizine",
                 dosage="10mg",
                 frequency="Once daily",
                 duration="5 days",
-                instructions="Take in the morning if heart rate is over 100bpm."
+                instructions="Take at bedtime."
             )
             # Create Post Visit Summary
             PostVisitSummary.objects.create(
                 consultation=consult,
-                summary="Dr. Sarah Heart noted a temporary fast heart rate related to caffeine. Reduced coffee consumption is advised. Propranolol 10mg was prescribed for 5 days to be taken once daily in the morning only if needed."
+                summary="Dr. Ananya Reddy noted fever and body aches indicating a viral infection. Please take rest and keep hydrated. Paracetamol 650mg is prescribed 3 times daily for 3 days after meals. Cetirizine 10mg should be taken once daily at bedtime for 5 days."
             )
-            self.stdout.write("Created yesterday's completed heart consult and prescription.")
+            self.stdout.write("Created yesterday's completed consultation for Rohan Malhotra.")
 
-        # 5. Create upcoming confirmed appointments for today/tomorrow
-        today = datetime.date.today()
-        tomorrow = today + datetime.timedelta(days=1)
+        # 5. Create upcoming confirmed appointments for tomorrow
+        tomorrow = datetime.date.today() + datetime.timedelta(days=1)
         
         Appointment.objects.get_or_create(
-            doctor=doctors_list[1],  # Dr. Brain
-            patient=patient_1,
+            doctor=doctors_list[1],  # Dr. Vikram Iyer (General Physician, split shift)
+            patient=patients_list[0],  # Rohan Malhotra
             appointment_date=tomorrow,
             start_time=datetime.time(11, 0),
             defaults={
@@ -173,8 +216,8 @@ class Command(BaseCommand):
         )
         
         Appointment.objects.get_or_create(
-            doctor=doctors_list[2],  # Dr. Child
-            patient=patient_2,
+            doctor=doctors_list[2],  # Dr. Meera Krishnan (Dermatology)
+            patient=patients_list[1],  # Aditya Sharma
             appointment_date=tomorrow,
             start_time=datetime.time(14, 0),
             defaults={
@@ -183,4 +226,4 @@ class Command(BaseCommand):
             }
         )
 
-        self.stdout.write("Successfully seeded database with clinical MVP profiles!")
+        self.stdout.write("Successfully seeded AyuSetu Multispeciality Clinic database!")

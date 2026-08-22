@@ -28,10 +28,6 @@ class DoctorWorkingHours(models.Model):
 
     class Meta:
         verbose_name_plural = "Doctor Working Hours"
-        # Optional: constraint to ensure unique working hours per day for a doctor
-        constraints = [
-            models.UniqueConstraint(fields=['doctor', 'day_of_week'], name='unique_doctor_working_day')
-        ]
 
     def __str__(self):
         return f"{self.doctor.user.name} - {self.get_day_of_week_display()}: {self.start_time} to {self.end_time}"
