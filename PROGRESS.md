@@ -36,8 +36,18 @@
   - Added robust nested transaction handling catching unique constraints/locks (`OperationalError` and `IntegrityError`) and translating database exceptions cleanly.
   - Wrote 3 comprehensive unit tests in `consultations/tests.py` verifying successful AI summaries, mocked OpenAI outages, fallback states, and consultation updates.
   - Verified that all 10 tests across the test suite run and pass successfully.
-- **What's next:** Phase 5 (Background Processing, Django-Q cluster setup, notifications, reminders, and retries).
+## Phase 5: Background Processing & Notifications (Completed)
+- **What was done:**
+  - Implemented the database-backed `Notification` model to handle asynchronous communication logs (emails and reminders).
+  - Integrated `django-q2` task queue utilizing the Django ORM database broker as our zero-external-service fallback.
+  - Implemented async notification workers in `notifications/tasks.py` handling email dispatch via standard Django email engines, retries on failure, and transaction-independent execution.
+  - Created automated retry scheduling (with 3-attempt limit and delayed one-shot Django-Q `Schedule` logs).
+  - Developed medication reminder schedule generation parsing duration and frequency strings into discrete future notifications and scheduled one-shot tasks.
+  - Wrote robust unit tests in `notifications/tests.py` verifying successful delivery, failure-retry scheduling, and reminder scheduling.
+  - Resolved timing dependencies by mocking `timezone.now()` to ensure deterministic reminder counting.
+  - Verified that all 25 unit tests across the entire test suite compile, run, and pass successfully.
+- **What's next:** Phase 6 (Google Calendar OAuth login, event sync, and API fallbacks).
 - **Known issues / Shortcuts:**
-  - Standardized local SQLite tests to use a file-based target `test_db.sqlite3` so that multi-threaded connection pools correctly lock and trigger unique constraints.
-  - Normalised raw AI urgency outputs to uppercase choices to ensure database level validation.
+  - Standardized delayed tasks to use one-shot Django-Q `Schedule` rows, avoiding external polling or thread sleeping.
+
 
