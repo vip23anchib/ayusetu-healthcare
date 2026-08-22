@@ -46,8 +46,17 @@
   - Wrote robust unit tests in `notifications/tests.py` verifying successful delivery, failure-retry scheduling, and reminder scheduling.
   - Resolved timing dependencies by mocking `timezone.now()` to ensure deterministic reminder counting.
   - Verified that all 25 unit tests across the entire test suite compile, run, and pass successfully.
-- **What's next:** Phase 6 (Google Calendar OAuth login, event sync, and API fallbacks).
+## Phase 6: Google Calendar Sync (Completed)
+- **What was done:**
+  - Implemented `DoctorGoogleCredentials` and `CalendarEvent` database models.
+  - Developed full OAuth 2.0 connection views (`POST /api/calendar/connect/` and `GET /api/calendar/callback/`) handling credentials exchange, offline refresh tokens, and consent storage.
+  - Implemented Google Calendar event synchronization service dispatching calls on creation, reschedule, and deletion.
+  - Designed fallback development mocks: if client secrets are missing, connect flow redirects to callback directly with code `mock_code_123`, saving mock credentials in database. Event synchronization logs mock parameters to console and marks state `ACTIVE` or `DELETED`, avoiding API blockages.
+  - Wrote 4 comprehensive tests in `calendar_integration/tests.py` verifying OAuth routes, mock callbacks, sync creation, reschedule patches, and cancel deletes.
+  - Verified that all 29 tests across all backend apps compile, run, and pass successfully.
+- **What's next:** Phase 7 (Frontend Dashboards: Patient, Doctor, Admin).
 - **Known issues / Shortcuts:**
-  - Standardized delayed tasks to use one-shot Django-Q `Schedule` rows, avoiding external polling or thread sleeping.
+  - Standardized the connect view to return mock callback targets when client settings are missing, ensuring zero-configuration local setups are fully testable.
+
 
 

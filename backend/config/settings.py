@@ -196,3 +196,9 @@ else:
     # default fallback to console
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# Google Calendar OAuth Configuration
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/calendar/callback/')
+
+
