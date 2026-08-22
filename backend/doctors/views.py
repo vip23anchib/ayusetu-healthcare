@@ -72,8 +72,13 @@ class AdminDoctorViewSet(viewsets.ModelViewSet):
     """
     Admin-only CRUD endpoints for Doctor Profiles.
     """
-    permission_classes = [IsAdmin]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Doctor.objects.all().select_related('user').prefetch_related('working_hours', 'leaves')
+
+    def get_permissions(self):
+        if self.action in ['leave', 'retrieve']:
+            return [permissions.IsAuthenticated()]
+        return [IsAdmin()]
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
@@ -83,6 +88,10 @@ class AdminDoctorViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post', 'delete'], url_path='leave')
     def leave(self, request, pk=None):
         doctor = self.get_object()
+        
+        # Verify permissions: must be Admin or the doctor themselves
+        if request.user.role != 'ADMIN' and doctor.user != request.user:
+            return Response({"detail": "You do not have permission to manage this doctor's leaves."}, status=status.HTTP_403_FORBIDDEN)
         
         if request.method == 'POST':
             leave_date = request.data.get('leave_date')
