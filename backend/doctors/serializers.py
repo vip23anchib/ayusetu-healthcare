@@ -46,6 +46,17 @@ class DoctorCreateUpdateSerializer(serializers.ModelSerializer):
             role=User.Role.DOCTOR
         )
         doctor = Doctor.objects.create(user=user, **validated_data)
+        
+        # Auto-create standard Mon-Fri working hours (9 AM - 5 PM)
+        from doctors.models import DoctorWorkingHours
+        import datetime
+        for day in range(5):  # Mon-Fri
+            DoctorWorkingHours.objects.create(
+                doctor=doctor,
+                day_of_week=day,
+                start_time=datetime.time(9, 0),
+                end_time=datetime.time(17, 0)
+            )
         return doctor
 
     def update(self, instance, validated_data):
