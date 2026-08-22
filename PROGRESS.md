@@ -27,7 +27,17 @@
   - Wrote a multi-threaded concurrency unit test in `appointments/tests.py` using `TransactionTestCase` to simulate simultaneous bookings for the same slot.
   - Verified that all 7 tests pass successfully (ensuring exactly one booking succeeds and the other receives a conflict exception).
   - Seeded consultation models ahead of schedule to unblock appointments testing.
-- **What's next:** Phase 4 (OpenAI Pre/Post-Visit summaries & Consultations).
+## Phase 4: AI Pre/Post-Visit Summaries & Consultations (Completed)
+- **What was done:**
+  - Implemented core consultation database models: `Symptom`, `PreVisitSummary`, `Consultation`, `Prescription`, `Medication`, and `PostVisitSummary`.
+  - Created `ai_service.py` to communicate directly with OpenAI's Chat Completions endpoint via `httpx` and handle timeouts and API key omissions gracefully.
+  - Implemented symptom-analysis services generating chief complaint summaries, urgency rankings (LOW, MEDIUM, HIGH), and doctor prompt questions.
+  - Implemented consultation completion service registering doctor notes, follow-up dates, custom prescriptions/medications, and triggering patient-friendly follow-up summaries.
+  - Added robust nested transaction handling catching unique constraints/locks (`OperationalError` and `IntegrityError`) and translating database exceptions cleanly.
+  - Wrote 3 comprehensive unit tests in `consultations/tests.py` verifying successful AI summaries, mocked OpenAI outages, fallback states, and consultation updates.
+  - Verified that all 10 tests across the test suite run and pass successfully.
+- **What's next:** Phase 5 (Background Processing, Django-Q cluster setup, notifications, reminders, and retries).
 - **Known issues / Shortcuts:**
-  - Created stubs in `notifications` and `calendar_integration` so that Core Appointments functionality compiles and is fully testable without external system requirements.
+  - Standardized local SQLite tests to use a file-based target `test_db.sqlite3` so that multi-threaded connection pools correctly lock and trigger unique constraints.
+  - Normalised raw AI urgency outputs to uppercase choices to ensure database level validation.
 

@@ -9,3 +9,10 @@ def queue_reschedule_notifications(appointment_id):
 
 def queue_leave_notifications(appointment_id):
     print(f"[Stub] Queue doctor leave cancel notifications for appointment {appointment_id}")
+
+def schedule_medication_reminders(prescription_id):
+    print(f"[Stub] Schedule medication reminders for prescription {prescription_id}")
+
+def queue_post_visit_notifications(appointment_id):
+    print(f"[Stub] Queue post-visit notifications for appointment {appointment_id}")
+

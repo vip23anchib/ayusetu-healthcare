@@ -109,6 +109,7 @@ class AppointmentTests(TransactionTestCase):
         thread2.join()
 
         # Assertions
+        print(f"\n--- Concurrency Test Results: {results} ---")
         self.assertEqual(results.count("SUCCESS"), 1)
         self.assertEqual(results.count("CONFLICT"), 1)
 

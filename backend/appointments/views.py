@@ -112,3 +112,64 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             msg = getattr(e, 'message', str(e))
             return Response({"detail": msg}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'], url_path='pre-visit-summary')
+    def pre_visit_summary(self, request, pk=None):
+        appointment = self.get_object()
+        from consultations.models import PreVisitSummary
+        from consultations.serializers import PreVisitSummarySerializer
+        
+        try:
+            summary = PreVisitSummary.objects.get(appointment=appointment)
+            return Response(PreVisitSummarySerializer(summary).data)
+        except PreVisitSummary.DoesNotExist:
+            return Response({"detail": "Pre-visit summary not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['post'], url_path='consultation')
+    def consultation(self, request, pk=None):
+        if request.user.role not in ['DOCTOR', 'ADMIN']:
+            return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
+            
+        appointment = self.get_object()
+        from consultations.serializers import ConsultationCreateSerializer, ConsultationSerializer
+        from consultations.services import create_consultation
+        
+        serializer = ConsultationCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            consult = create_consultation(
+                appointment_id=appointment.id,
+                doctor_notes=serializer.validated_data['doctor_notes'],
+                follow_up_date=serializer.validated_data.get('follow_up_date'),
+                medications=serializer.validated_data.get('medications', [])
+            )
+            return Response(ConsultationSerializer(consult).data, status=status.HTTP_201_CREATED)
+        except ValidationError as e:
+            msg = getattr(e, 'message', str(e))
+            return Response({"detail": msg}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get', 'post'], url_path='prescription')
+    def prescription(self, request, pk=None):
+        appointment = self.get_object()
+        from consultations.models import Prescription
+        from consultations.serializers import PrescriptionSerializer
+        
+        try:
+            prescription_obj = Prescription.objects.get(consultation__appointment=appointment)
+            return Response(PrescriptionSerializer(prescription_obj).data)
+        except Prescription.DoesNotExist:
+            return Response({"detail": "Prescription not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['get'], url_path='post-visit-summary')
+    def post_visit_summary(self, request, pk=None):
+        appointment = self.get_object()
+        from consultations.models import PostVisitSummary
+        from consultations.serializers import PostVisitSummarySerializer
+        
+        try:
+            summary = PostVisitSummary.objects.get(consultation__appointment=appointment)
+            return Response(PostVisitSummarySerializer(summary).data)
+        except PostVisitSummary.DoesNotExist:
+            return Response({"detail": "Post-visit summary not found."}, status=status.HTTP_404_NOT_FOUND)
+

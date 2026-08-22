@@ -1,4 +1,4 @@
-from django.db import transaction
+from django.db import transaction, IntegrityError, OperationalError
 from django.utils import timezone
 from django.db.models import Q
 from django.core.exceptions import ValidationError
@@ -79,67 +79,71 @@ def hold_slot(patient, doctor_id, check_date, start_time_str):
     """
     Places a 5-minute hold on a doctor slot. Row-locks doctor record to prevent races.
     """
-    if isinstance(check_date, str):
-        check_date = datetime.strptime(check_date, "%Y-%m-%d").date()
-
-    # Lock doctor row
     try:
-        doctor = Doctor.objects.select_for_update().get(id=doctor_id)
-    except Doctor.DoesNotExist:
-        raise ValidationError("Doctor profile not found.")
+        if isinstance(check_date, str):
+            check_date = datetime.strptime(check_date, "%Y-%m-%d").date()
 
-    # Parse start time
-    try:
-        start_time = datetime.strptime(start_time_str, "%H:%M:%S").time()
-    except ValueError:
+        # Lock doctor row
         try:
-            start_time = datetime.strptime(start_time_str, "%H:%M").time()
+            doctor = Doctor.objects.select_for_update().get(id=doctor_id)
+        except Doctor.DoesNotExist:
+            raise ValidationError("Doctor profile not found.")
+
+        # Parse start time
+        try:
+            start_time = datetime.strptime(start_time_str, "%H:%M:%S").time()
         except ValueError:
-            raise ValidationError("Invalid start_time format. Use HH:MM:SS.")
+            try:
+                start_time = datetime.strptime(start_time_str, "%H:%M").time()
+            except ValueError:
+                raise ValidationError("Invalid start_time format. Use HH:MM:SS.")
 
-    start_dt = datetime.combine(check_date, start_time)
-    end_dt = start_dt + timedelta(minutes=doctor.slot_duration)
-    end_time = end_dt.time()
+        start_dt = datetime.combine(check_date, start_time)
+        end_dt = start_dt + timedelta(minutes=doctor.slot_duration)
+        end_time = end_dt.time()
 
-    # 1. No booking outside working hours
-    day_of_week = check_date.weekday()
-    working_hours = DoctorWorkingHours.objects.filter(doctor=doctor, day_of_week=day_of_week).first()
-    if not working_hours:
-        raise ValidationError("Doctor does not work on this day of the week.")
-    
-    if start_time < working_hours.start_time or end_time > working_hours.end_time:
-        raise ValidationError("Requested slot is outside the doctor's working hours.")
+        # 1. No booking outside working hours
+        day_of_week = check_date.weekday()
+        working_hours = DoctorWorkingHours.objects.filter(doctor=doctor, day_of_week=day_of_week).first()
+        if not working_hours:
+            raise ValidationError("Doctor does not work on this day of the week.")
+        
+        if start_time < working_hours.start_time or end_time > working_hours.end_time:
+            raise ValidationError("Requested slot is outside the doctor's working hours.")
 
-    # 2. No booking during leave
-    if DoctorLeave.objects.filter(doctor=doctor, leave_date=check_date).exists():
-        raise ValidationError("Doctor is on leave on this date.")
+        # 2. No booking during leave
+        if DoctorLeave.objects.filter(doctor=doctor, leave_date=check_date).exists():
+            raise ValidationError("Doctor is on leave on this date.")
 
-    # 3. Check for concurrency conflicts (holds/active bookings)
-    now = timezone.now()
-    conflicting = Appointment.objects.filter(
-        doctor=doctor,
-        appointment_date=check_date,
-        start_time=start_time
-    ).filter(
-        Q(status__in=[Appointment.Status.CONFIRMED, Appointment.Status.COMPLETED]) |
-        Q(status=Appointment.Status.HELD, hold_expires_at__gt=now)
-    ).select_for_update().exists()
+        # 3. Check for concurrency conflicts (holds/active bookings)
+        now = timezone.now()
+        conflicting = Appointment.objects.filter(
+            doctor=doctor,
+            appointment_date=check_date,
+            start_time=start_time
+        ).filter(
+            Q(status__in=[Appointment.Status.CONFIRMED, Appointment.Status.COMPLETED]) |
+            Q(status=Appointment.Status.HELD, hold_expires_at__gt=now)
+        ).select_for_update().exists()
 
-    if conflicting:
+        if conflicting:
+            raise SlotConflictError("This slot was just booked by another patient. Please choose another slot.")
+
+        # Create HELD appointment
+        hold_expires_at = now + timedelta(minutes=5)
+        appointment = Appointment.objects.create(
+            doctor=doctor,
+            patient=patient,
+            appointment_date=check_date,
+            start_time=start_time,
+            end_time=end_time,
+            status=Appointment.Status.HELD,
+            hold_expires_at=hold_expires_at
+        )
+        return appointment
+    except (IntegrityError, OperationalError):
         raise SlotConflictError("This slot was just booked by another patient. Please choose another slot.")
 
-    # Create HELD appointment
-    hold_expires_at = now + timedelta(minutes=5)
-    appointment = Appointment.objects.create(
-        doctor=doctor,
-        patient=patient,
-        appointment_date=check_date,
-        start_time=start_time,
-        end_time=end_time,
-        status=Appointment.Status.HELD,
-        hold_expires_at=hold_expires_at
-    )
-    return appointment
 
 
 @transaction.atomic
