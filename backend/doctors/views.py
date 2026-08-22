@@ -52,6 +52,21 @@ class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = DoctorWorkingHoursSerializer(working_hour)
         return Response(serializer.data, status=status.HTTP_200_OK if not created else status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=['get'], url_path='slots', permission_classes=[permissions.IsAuthenticated])
+    def slots(self, request, pk=None):
+        doctor = self.get_object()
+        date_str = request.query_params.get('date', None)
+        if not date_str:
+            return Response({"detail": "date parameter is required (?date=YYYY-MM-DD)"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        from appointments.services import generate_available_slots
+        try:
+            slots = generate_available_slots(doctor.id, date_str)
+            return Response(slots, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 class AdminDoctorViewSet(viewsets.ModelViewSet):
     """
