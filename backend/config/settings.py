@@ -177,7 +177,8 @@ Q_CLUSTER = {
     'retry': 120,
     'queue_limit': 50,
     'bulk': 10,
-    'orm': 'default'  # database broker (zero service fallback)
+    'orm': 'default',  # database broker (zero service fallback)
+    'sync': os.getenv('DJANGO_Q_SYNC', 'True') == 'True'  # run tasks inline on Windows by default
 }
 
 # Email Backend Configuration
