@@ -134,6 +134,6 @@ All three external services are accessed **only from background task workers** �
 
 | Service | Integration point | Fallback |
 | :--- | :--- | :--- |
-| **OpenAI** (`gpt-4o-mini`) | `ai_service.py` → `analyze_symptoms()` and `generate_patient_summary()` | Keyword-based mock if `OPENAI_API_KEY` absent; `status=FAILED` if API call errors |
+| **Google Gemini** (`gemini-1.5-flash`) | `ai_service.py` → `analyze_symptoms()` and `generate_patient_summary()` | Free tier, no payment required. Keyword-based mock if `GEMINI_API_KEY` absent; `status=FAILED` if API call errors |
 | **SendGrid SMTP** | `notifications/tasks.py` → `send_notification_task()` | Console backend (prints to terminal) if `EMAIL_PROVIDER=console` |
 | **Google Calendar API v3** | `calendar_integration/tasks.py` | `CalendarEvent.status=FAILED` logged; booking unaffected |

@@ -76,7 +76,7 @@ Scheduling clinic appointments in India is still largely phone-based, leading to
 | **Backend** | Python 3.10+, Django 6.1, Django REST Framework, SimpleJWT |
 | **Database** | PostgreSQL (production via Neon) / SQLite (local dev) |
 | **Background Jobs** | django-q2 (ORM broker; synchronous fallback on Windows) |
-| **AI** | OpenAI API — `gpt-4o-mini` (via `httpx`) |
+| **AI** | Google Gemini API — `gemini-1.5-flash` (free tier, no payment required) via `google-generativeai` |
 | **Email** | SendGrid SMTP (production) / Django console backend (dev) |
 | **Calendar** | Google Calendar API v3 — `google-api-python-client`, `google-auth-oauthlib` |
 | **Hosting** | Vercel (frontend) · Render (backend) · Neon (PostgreSQL) · Upstash (Redis, optional) |
@@ -228,7 +228,7 @@ All variables are defined in [`backend/.env.example`](backend/.env.example). Sum
 | `DEBUG` | ✅ | `True` for dev, `False` for production |
 | `DATABASE_URL` | — | PostgreSQL URL. If blank, SQLite is used (local dev only) |
 | `JWT_SECRET_KEY` | ✅ | JWT signing key (can equal `SECRET_KEY`) |
-| `OPENAI_API_KEY` | — | Enables AI triage. Falls back to keyword-based mock if absent |
+| `GEMINI_API_KEY` | — | Enables AI triage. Free key from [aistudio.google.com](https://aistudio.google.com/app/apikey). Falls back to keyword mock if absent |
 | `EMAIL_PROVIDER` | ✅ | `console` (dev — prints to terminal) or `sendgrid` (production) |
 | `EMAIL_API_KEY` | — | SendGrid API key. Only needed if `EMAIL_PROVIDER=sendgrid` |
 | `EMAIL_FROM` | ✅ | Sender address for outgoing emails |
@@ -292,7 +292,7 @@ Built under a 2-day MVP constraint. The following were intentionally simplified:
 2. **SQLite limitations** — `select_for_update()` row locking is fully effective only on PostgreSQL. Local SQLite dev falls back to the partial unique index as the sole concurrency guard.
 3. **Django-Q on Windows** runs synchronously (`DJANGO_Q_SYNC=True`) because Windows does not support `os.fork()`. Set `False` in production on Linux.
 4. **Google Calendar** requires per-user OAuth authorization and is in "Testing" mode (only pre-added test users can authorize). Full public use requires Google verification.
-5. **AI triage is not a diagnosis** — Summaries are clearly labeled as clinician-review aids. If `OPENAI_API_KEY` is absent, a keyword-based mock is used instead.
+5. **AI triage is not a diagnosis** — Summaries are clearly labeled as clinician-review aids. Uses Google Gemini free tier (`gemini-1.5-flash`) — no payment required. Falls back to keyword-based mock if `GEMINI_API_KEY` is absent.
 6. **Email in dev** defaults to `console` backend — emails print to the terminal, not delivered to real inboxes.
 7. **No file uploads** — Patient documents, images, and lab reports are out of scope for this MVP.
 

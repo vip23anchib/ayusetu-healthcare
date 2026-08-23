@@ -1,12 +1,14 @@
 # AyuSetu — LLM Prompts Reference
 
+AyuSetu uses **Google Gemini** (`gemini-1.5-flash`) as its LLM provider — free-tier eligible, no payment or credit card required. Get a key at [aistudio.google.com](https://aistudio.google.com/app/apikey).
+
 This document contains the **verbatim** prompt text used in `backend/ai/ai_service.py`, plus the input→output flow for each.
 
 ---
 
 ## 1. Pre-Visit Symptom Triage
 
-**Source:** `ai_service.py → analyze_symptoms(symptoms_text)` — called after `POST /api/appointments/{id}/symptoms/` when the patient submits symptoms.
+**Source:** `ai_service.py → analyze_symptoms(symptoms_text)` — called after `POST /api/appointments/{id}/symptoms/` when the patient submits symptoms. Uses Gemini `gemini-1.5-flash` with `response_mime_type="application/json"` to guarantee structured output.
 
 ### System Prompt (verbatim)
 
@@ -33,10 +35,10 @@ The raw patient-submitted symptoms text (free-form string), e.g.:
 ```
 
 ### Model Configuration
-- **Model:** `gpt-4o-mini`
+- **Model:** `gemini-1.5-flash` (Google free tier)
 - **Temperature:** `0.0` (deterministic, reproducible output)
-- **Response format:** `{ "type": "json_object" }` (forces valid JSON)
-- **Timeout:** 8 seconds
+- **Response format:** `response_mime_type="application/json"` via Gemini `GenerationConfig` (forces valid JSON)
+- **SDK:** `google-generativeai` Python package
 
 ### Output Shape (validated before saving)
 ```json
@@ -62,7 +64,7 @@ confirm_booking() saves Symptom record + transitions status → CONFIRMED
 generate_pre_visit_summary_task(appointment_id)
     │
     ├─ Calls analyze_symptoms(symptoms_text)
-    │     ├─ [OPENAI_API_KEY present] → httpx POST → OpenAI API → parse JSON
+    │     ├─ [GEMINI_API_KEY present] → google-generativeai SDK → Gemini API → parse JSON
     │     └─ [Key absent] → keyword-based mock fallback (urgency from keywords)
     │
     ▼
@@ -110,9 +112,9 @@ Prescribed Medications:
 ```
 
 ### Model Configuration
-- **Model:** `gpt-4o-mini`
+- **Model:** `gemini-1.5-flash` (Google free tier)
 - **Temperature:** `0.2` (slightly creative for readability, still grounded)
-- **Timeout:** 10 seconds
+- **SDK:** `google-generativeai` Python package
 
 ### Output Shape
 Free-form plain text (not JSON). Example:
@@ -143,7 +145,7 @@ create_consultation() saves Consultation + Prescription + Medications
 generate_post_visit_summary_task(consultation_id)
     │
     ├─ Calls generate_patient_summary(notes, medications_list)
-    │     ├─ [OPENAI_API_KEY present] → httpx POST → OpenAI API → plain text response
+    │     ├─ [GEMINI_API_KEY present] → google-generativeai SDK → Gemini API → plain text response
     │     └─ [Key absent] → mock fallback (bullet-list format from notes + meds)
     │
     ▼
@@ -161,7 +163,7 @@ Shown in:
 
 ## Development Mock Fallbacks
 
-When `OPENAI_API_KEY` is not set, both functions fall back to deterministic local logic:
+When `GEMINI_API_KEY` is not set, both functions fall back to deterministic local logic:
 
 **`get_mock_symptoms_summary(symptoms_text)`** — checks for keywords (`"chest pain"`, `"fever"`, `"severe"`, etc.) to assign urgency. Returns the first 150 characters of the symptoms as the chief complaint.
 

@@ -44,17 +44,17 @@ class ConsultationTests(TestCase):
         )
 
     def test_pre_visit_summary_success(self):
-        # Trigger summary (mock OpenAI is used since env OPENAI_API_KEY is empty)
+        # Trigger summary (mock is used since env GEMINI_API_KEY is empty)
         summary = trigger_pre_visit_summary(self.appointment.id)
         self.assertEqual(summary.status, 'COMPLETED')
         self.assertIn(summary.urgency, [PreVisitSummary.Urgency.LOW, PreVisitSummary.Urgency.MEDIUM, PreVisitSummary.Urgency.HIGH])
         self.assertGreater(len(summary.suggested_questions), 0)
 
     def test_pre_visit_summary_ai_failure(self):
-        # Force OpenAI failure by setting an invalid state or monkeypatching the helper
+        # Force Gemini failure by monkeypatching the helper
         import consultations.services
         def fail_analyze(text):
-            raise Exception("OpenAI API Down")
+            raise Exception("Gemini API Down")
         
         original_analyze = consultations.services.analyze_symptoms
         consultations.services.analyze_symptoms = fail_analyze

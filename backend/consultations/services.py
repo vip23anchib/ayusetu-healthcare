@@ -8,7 +8,7 @@ from ai.ai_service import analyze_symptoms, generate_patient_summary
 def trigger_pre_visit_summary(appointment_id):
     """
     Triggers AI symptom analysis and saves PreVisitSummary.
-    Ensures OpenAI failure does not break the booking transaction.
+    Ensures Gemini failure does not break the booking transaction.
     """
     try:
         appointment = Appointment.objects.get(id=appointment_id)
