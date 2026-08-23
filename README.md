@@ -14,8 +14,7 @@
 | [Architecture Overview](docs/architecture.md) | System diagram, service layer isolation, layer-by-layer walkthrough |
 | [LLM Prompts](docs/llm-prompts.md) | Verbatim OpenAI prompts for pre-visit triage and post-visit summary |
 | [Google Calendar Setup](docs/google-calendar-setup.md) | Step-by-step OAuth 2.0 credential setup guide |
-| [Full Narrative Guide](docs/full-guide.md) | In-depth architecture, deployment walkthrough, and roadmap |
-| [Interview Prep Q&A](docs/interview-prep.md) | Top 10 anticipated technical questions and answers |
+
 
 ---
 
