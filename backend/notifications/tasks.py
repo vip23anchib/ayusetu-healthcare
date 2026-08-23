@@ -92,7 +92,7 @@ def generate_email_contents(notification):
             f"Time: {appt.start_time} - {appt.end_time}\n\n"
             f"Please prepare to share symptoms or review details in your dashboard.\n\n"
             f"Thank you,\n"
-            f"AyuSetu Health Care"
+            f"AyuSetu Multispeciality Clinic"
         )
     elif t_type == Notification.Type.CANCELLATION:
         subject = "Appointment Cancelled - AyuSetu"
@@ -104,7 +104,7 @@ def generate_email_contents(notification):
             f"Time: {appt.start_time}\n\n"
             f"If you need to reschedule, please visit your dashboard.\n\n"
             f"Thank you,\n"
-            f"AyuSetu Health Care"
+            f"AyuSetu Multispeciality Clinic"
         )
     elif t_type == Notification.Type.RESCHEDULE:
         subject = "Appointment Rescheduled - AyuSetu"
@@ -115,7 +115,7 @@ def generate_email_contents(notification):
             f"New Date: {appt.appointment_date}\n"
             f"New Time: {appt.start_time} - {appt.end_time}\n\n"
             f"Thank you,\n"
-            f"AyuSetu Health Care"
+            f"AyuSetu Multispeciality Clinic"
         )
     elif t_type == Notification.Type.DOCTOR_LEAVE:
         subject = "Urgent: Doctor Leave Reschedule Required - AyuSetu"
@@ -125,7 +125,7 @@ def generate_email_contents(notification):
             f"Your appointment at {appt.start_time} has been cancelled.\n"
             f"Please log into AyuSetu to book an alternative slot.\n\n"
             f"Thank you,\n"
-            f"AyuSetu Health Care"
+            f"AyuSetu Multispeciality Clinic"
         )
     elif t_type == Notification.Type.MEDICATION_REMINDER:
         # Get medicine details if prescription exists
@@ -146,7 +146,7 @@ def generate_email_contents(notification):
             f"Date: {appt.appointment_date}\n"
             f"Time: {appt.start_time}\n\n"
             f"Thank you,\n"
-            f"AyuSetu Health Care"
+            f"AyuSetu Multispeciality Clinic"
         )
 
     return subject, body
