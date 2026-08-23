@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Mail, Lock, AlertCircle, Calendar } from 'lucide-react';
+import { Mail, Lock, AlertCircle } from 'lucide-react';
 
 const Login = () => {
   const { login } = useAuth();
@@ -32,10 +32,12 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="bg-primary-600 text-white p-3 rounded-2xl shadow-md">
-            <Calendar className="h-10 w-10" />
-          </div>
+        <div className="flex flex-col items-center">
+          <img src="/logo.png" alt="AyuSetu" className="h-16 w-16 object-contain" />
+          <h1 className="brand-wordmark text-4xl mt-3">
+            <span className="brand-ayu">Ayu</span><span className="brand-setu">Setu</span>
+          </h1>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Multispeciality Clinic</p>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900 tracking-tight">
           Welcome back to AyuSetu

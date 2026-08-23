@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../services/api';
-import { Users, Calendar, AlertCircle, Shield, Clipboard, ArrowRight } from 'lucide-react';
+import { Card, Badge, Button, Avatar } from '../../components/UI';
+import { Users, Calendar, Shield, Clipboard, ArrowRight, CheckCircle, Clock, XCircle, TrendingUp } from 'lucide-react';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -15,11 +16,9 @@ const AdminDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      // Fetch doctors count
       const docRes = await API.get('doctors/');
       setDoctorsCount(docRes.data.length);
 
-      // Fetch appointments (Admin sees all appointments)
       const apptRes = await API.get('appointments/');
       setAppointments(apptRes.data);
     } catch (err) {
@@ -34,29 +33,36 @@ const AdminDashboard = () => {
     loadAdminMetrics();
   }, []);
 
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case 'CONFIRMED': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
-      case 'COMPLETED': return 'bg-blue-50 text-blue-700 border-blue-100';
-      case 'CANCELLED': return 'bg-rose-50 text-rose-700 border-rose-100';
-      case 'HELD': return 'bg-amber-50 text-amber-700 border-amber-100';
-      default: return 'bg-slate-50 text-slate-500 border-slate-100';
-    }
-  };
+  // Computed stats
+  const confirmedCount = appointments.filter(a => a.status === 'CONFIRMED').length;
+  const completedCount = appointments.filter(a => a.status === 'COMPLETED').length;
+  const cancelledCount = appointments.filter(a => a.status === 'CANCELLED').length;
+
+  // Trend: count appointments created in last 7 days based on date field
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const thisWeekCount = appointments.filter(a => new Date(a.appointment_date) >= oneWeekAgo).length;
 
   return (
     <div className="space-y-6">
-      {/* Welcome & Overview Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800 flex items-center space-x-2">
-          <Shield className="h-6 w-6 text-primary-600" />
-          <span>Admin Portal Control Center</span>
-        </h1>
-        <p className="text-slate-500 text-sm mt-1">Monitor active doctors, scheduled leaves, and global booking statuses.</p>
+      {/* Welcome banner */}
+      <div className="bg-gradient-to-br from-navy-800 via-navy-700 to-primary-700 rounded-3xl p-8 text-white shadow-md relative overflow-hidden">
+        <div className="absolute right-0 bottom-0 opacity-5 translate-y-6 translate-x-6">
+          <Shield className="h-64 w-64" />
+        </div>
+        <div className="relative z-10 space-y-2">
+          <span className="text-primary-200 text-[10px] font-bold uppercase tracking-widest bg-white/10 px-2.5 py-1 rounded-full border border-white/20">
+            Admin Control Center
+          </span>
+          <h1 className="text-2xl font-extrabold tracking-tight mt-2">AyuSetu Multispeciality Clinic</h1>
+          <p className="text-white/70 text-xs leading-relaxed max-w-md">
+            Monitor active medical specialists, leave scheduling logs, and audit all global appointments.
+          </p>
+        </div>
       </div>
 
       {error && (
-        <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-xl text-sm text-rose-800">
+        <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-xl text-xs font-bold text-rose-800">
           {error}
         </div>
       )}
@@ -67,86 +73,135 @@ const AdminDashboard = () => {
         </div>
       ) : (
         <>
-          {/* Metrics summary widgets */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-2xl border border-slate-200/60 p-6 flex items-center justify-between shadow-sm">
-              <div className="space-y-1">
-                <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">Active Doctors</span>
-                <p className="text-3xl font-extrabold text-slate-800">{doctorsCount}</p>
+          {/* Stat Cards Row — 4 uniform cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 flex flex-col space-y-3 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="h-10 w-10 rounded-xl bg-navy-50 flex items-center justify-center text-navy-700">
+                  <Users className="h-5 w-5" />
+                </div>
+                <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">Active</span>
               </div>
-              <div className="h-12 w-12 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center">
-                <Users className="h-6 w-6" />
+              <div>
+                <p className="text-3xl font-extrabold text-slate-800 tracking-tight">{doctorsCount}</p>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">Specialists</span>
               </div>
+              <p className="text-[10px] text-slate-400 font-semibold border-t border-slate-50 pt-2">Registered on platform</p>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200/60 p-6 flex items-center justify-between shadow-sm">
-              <div className="space-y-1">
-                <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">Global Appointments</span>
-                <p className="text-3xl font-extrabold text-slate-800">{appointments.length}</p>
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 flex flex-col space-y-3 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="h-10 w-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-700">
+                  <Calendar className="h-5 w-5" />
+                </div>
+                <span className="text-[9px] font-bold text-primary-700 bg-primary-50 border border-primary-100 px-2 py-0.5 rounded-full">Total</span>
               </div>
-              <div className="h-12 w-12 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center">
-                <Calendar className="h-6 w-6" />
+              <div>
+                <p className="text-3xl font-extrabold text-slate-800 tracking-tight">{appointments.length}</p>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">Appointments</span>
               </div>
+              <p className="text-[10px] text-primary-600 font-bold border-t border-slate-50 pt-2 flex items-center space-x-1">
+                <TrendingUp className="h-3 w-3" />
+                <span>+{thisWeekCount} this week</span>
+              </p>
             </div>
 
-            {/* Quick Links Nav */}
-            <div className="bg-white rounded-2xl border border-slate-200/60 p-6 flex flex-col justify-center space-y-2 shadow-sm">
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 flex flex-col space-y-3 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="h-10 w-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-700">
+                  <CheckCircle className="h-5 w-5" />
+                </div>
+                <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">Done</span>
+              </div>
+              <div>
+                <p className="text-3xl font-extrabold text-slate-800 tracking-tight">{completedCount}</p>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">Completed</span>
+              </div>
+              <p className="text-[10px] text-slate-400 font-semibold border-t border-slate-50 pt-2">{confirmedCount} confirmed upcoming</p>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 flex flex-col space-y-3 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="h-10 w-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600">
+                  <XCircle className="h-5 w-5" />
+                </div>
+                <span className="text-[9px] font-bold text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded-full">Cancelled</span>
+              </div>
+              <div>
+                <p className="text-3xl font-extrabold text-slate-800 tracking-tight">{cancelledCount}</p>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">Cancellations</span>
+              </div>
+              <p className="text-[10px] text-slate-400 font-semibold border-t border-slate-50 pt-2">Patients notified by email</p>
+            </div>
+          </div>
+
+          {/* Quick Links — distinct section below stat row */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Quick Navigation</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
                 onClick={() => navigate('/admin/doctors')}
-                className="w-full flex justify-between items-center text-left py-1 text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline transition-all"
+                className="flex items-center justify-between bg-navy-50 border border-navy-100 hover:bg-navy-100 px-4 py-3 rounded-xl text-xs font-bold text-navy-700 transition-all cursor-pointer"
               >
-                <span>Manage Doctors Profiles</span>
+                <span>Manage Specialists</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
               <button
                 onClick={() => navigate('/admin/leaves')}
-                className="w-full flex justify-between items-center text-left py-1 text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline transition-all"
+                className="flex items-center justify-between bg-amber-50 border border-amber-100 hover:bg-amber-100 px-4 py-3 rounded-xl text-xs font-bold text-amber-700 transition-all cursor-pointer"
               >
-                <span>Register Doctor Leave Dates</span>
+                <span>Doctor Leave Logs</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => navigate('/admin/appointments')}
+                className="flex items-center justify-between bg-primary-50 border border-primary-100 hover:bg-primary-100 px-4 py-3 rounded-xl text-xs font-bold text-primary-700 transition-all cursor-pointer"
+              >
+                <span>Appointments Oversight</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </div>
 
-          {/* Global appointments ledger */}
-          <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
-            <h2 className="text-lg font-bold text-slate-800 flex items-center space-x-2">
-              <Clipboard className="h-5 w-5 text-primary-600" />
-              <span>Global Booking Activity</span>
-            </h2>
-
+          {/* Global appointments ledger (preview — top 10) */}
+          <Card title="Recent Booking Activity" subtitle="Latest 10 appointments across all clinicians at AyuSetu.">
             {appointments.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-6">No appointments registered in the system.</p>
+              <div className="text-center py-10">
+                <Clipboard className="h-10 w-10 text-slate-200 mx-auto mb-3" />
+                <p className="text-xs font-bold text-slate-400">No appointments registered yet.</p>
+                <p className="text-[10px] text-slate-300 mt-1">Bookings will appear here once patients start scheduling.</p>
+              </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-sm">
+              <div className="overflow-x-auto border border-slate-100 rounded-xl">
+                <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase tracking-wider text-xs">
+                    <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase tracking-wider">
                       <th className="px-4 py-3">ID</th>
                       <th className="px-4 py-3">Patient</th>
-                      <th className="px-4 py-3">Doctor</th>
-                      <th className="px-4 py-3">Specialization</th>
-                      <th className="px-4 py-3">Date & Time</th>
+                      <th className="px-4 py-3">Doctor Specialist</th>
+                      <th className="px-4 py-3">Scheduled Date & Time</th>
                       <th className="px-4 py-3">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {appointments.map((appt) => (
-                      <tr key={appt.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-4 py-3 font-semibold text-slate-500">#{appt.id}</td>
+                  <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
+                    {appointments.slice(0, 10).map((appt) => (
+                      <tr key={appt.id} className="hover:bg-slate-50/30">
+                        <td className="px-4 py-3 text-slate-400 font-bold">#{appt.id}</td>
                         <td className="px-4 py-3 font-bold text-slate-800">{appt.patient.name}</td>
-                        <td className="px-4 py-3">Dr. {appt.doctor.user.name}</td>
-                        <td className="px-4 py-3">{appt.doctor.specialization}</td>
                         <td className="px-4 py-3">
-                          <span>{appt.appointment_date}</span>
-                          <span className="block text-xs text-slate-500 mt-0.5">
-                            {appt.start_time.substring(0, 5)} - {appt.end_time.substring(0, 5)}
+                          <div className="flex items-center space-x-2">
+                            <Avatar name={appt.doctor.user.name} specialization={appt.doctor.specialization} />
+                            <span>Dr. {appt.doctor.user.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-bold text-slate-700">{appt.appointment_date}</span>
+                          <span className="block text-[10px] text-slate-400 mt-0.5">
+                            {appt.start_time.substring(0, 5)} – {appt.end_time.substring(0, 5)} IST
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${getStatusStyle(appt.status)}`}>
-                            {appt.status}
-                          </span>
+                          <Badge status={appt.status} />
                         </td>
                       </tr>
                     ))}
@@ -154,7 +209,17 @@ const AdminDashboard = () => {
                 </table>
               </div>
             )}
-          </div>
+            {appointments.length > 10 && (
+              <div className="mt-3 text-center">
+                <button
+                  onClick={() => navigate('/admin/appointments')}
+                  className="text-xs font-bold text-primary-600 hover:text-primary-700 transition-colors"
+                >
+                  View all {appointments.length} appointments →
+                </button>
+              </div>
+            )}
+          </Card>
         </>
       )}
     </div>

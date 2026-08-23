@@ -62,7 +62,7 @@ class ConsultationTests(TestCase):
         try:
             summary = trigger_pre_visit_summary(self.appointment.id)
             # The booking/trigger flow itself succeeds
-            self.assertEqual(summary.status, 'FAILED')
+            self.assertEqual(summary.status, 'UNAVAILABLE')
             self.assertEqual(summary.urgency, PreVisitSummary.Urgency.UNAVAILABLE)
             self.assertEqual(summary.chief_complaint, "AI summary is temporarily unavailable. Please review the patient's original symptoms.")
         finally:

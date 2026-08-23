@@ -42,7 +42,7 @@ def trigger_pre_visit_summary(appointment_id):
         summary_obj.save()
     except Exception as e:
         print(f"[Pre-Visit Summary Error] Failed to generate AI summary for appointment {appointment_id}: {e}")
-        summary_obj.status = 'FAILED'
+        summary_obj.status = 'UNAVAILABLE'
         summary_obj.urgency = PreVisitSummary.Urgency.UNAVAILABLE
         summary_obj.chief_complaint = "AI summary is temporarily unavailable. Please review the patient's original symptoms."
         summary_obj.save()

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
@@ -28,75 +29,77 @@ import AdminAppointments from './pages/admin/Appointments';
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          {/* Patient Gated Routes */}
-          <Route
-            path="/patient/*"
-            element={
-              <ProtectedRoute allowedRoles={['PATIENT']}>
-                <Layout>
-                  <Routes>
-                    <Route path="dashboard" element={<PatientDashboard />} />
-                    <Route path="doctors" element={<PatientDoctors />} />
-                    <Route path="book/:doctorId" element={<PatientBook />} />
-                    <Route path="appointments" element={<PatientAppointments />} />
-                    <Route path="appointments/:id" element={<PatientAppointmentDetail />} />
-                    <Route path="*" element={<Navigate to="dashboard" replace />} />
-                  </Routes>
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            {/* Patient Gated Routes */}
+            <Route
+              path="/patient/*"
+              element={
+                <ProtectedRoute allowedRoles={['PATIENT']}>
+                  <Layout>
+                    <Routes>
+                      <Route path="dashboard" element={<PatientDashboard />} />
+                      <Route path="doctors" element={<PatientDoctors />} />
+                      <Route path="book/:doctorId" element={<PatientBook />} />
+                      <Route path="appointments" element={<PatientAppointments />} />
+                      <Route path="appointments/:id" element={<PatientAppointmentDetail />} />
+                      <Route path="*" element={<Navigate to="dashboard" replace />} />
+                    </Routes>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Doctor Gated Routes */}
-          <Route
-            path="/doctor/*"
-            element={
-              <ProtectedRoute allowedRoles={['DOCTOR']}>
-                <Layout>
-                  <Routes>
-                    <Route path="dashboard" element={<DoctorDashboard />} />
-                    <Route path="appointments" element={<DoctorAppointments />} />
-                    <Route path="appointments/:id" element={<DoctorAppointments />} />
-                    <Route path="appointments/:id/consult" element={<DoctorConsult />} />
-                    <Route path="*" element={<Navigate to="dashboard" replace />} />
-                  </Routes>
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            {/* Doctor Gated Routes */}
+            <Route
+              path="/doctor/*"
+              element={
+                <ProtectedRoute allowedRoles={['DOCTOR']}>
+                  <Layout>
+                    <Routes>
+                      <Route path="dashboard" element={<DoctorDashboard />} />
+                      <Route path="appointments" element={<DoctorAppointments />} />
+                      <Route path="appointments/:id" element={<DoctorAppointments />} />
+                      <Route path="appointments/:id/consult" element={<DoctorConsult />} />
+                      <Route path="*" element={<Navigate to="dashboard" replace />} />
+                    </Routes>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Admin Gated Routes */}
-          <Route
-            path="/admin/*"
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <Layout>
-                  <Routes>
-                    <Route path="dashboard" element={<AdminDashboard />} />
-                    <Route path="doctors" element={<AdminDoctors />} />
-                    <Route path="doctors/:id" element={<AdminDoctors />} />
-                    <Route path="leaves" element={<AdminLeaves />} />
-                    <Route path="appointments" element={<AdminAppointments />} />
-                    <Route path="*" element={<Navigate to="dashboard" replace />} />
-                  </Routes>
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            {/* Admin Gated Routes */}
+            <Route
+              path="/admin/*"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <Layout>
+                    <Routes>
+                      <Route path="dashboard" element={<AdminDashboard />} />
+                      <Route path="doctors" element={<AdminDoctors />} />
+                      <Route path="doctors/:id" element={<AdminDoctors />} />
+                      <Route path="leaves" element={<AdminLeaves />} />
+                      <Route path="appointments" element={<AdminAppointments />} />
+                      <Route path="*" element={<Navigate to="dashboard" replace />} />
+                    </Routes>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Fallback routing */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            {/* Fallback routing */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

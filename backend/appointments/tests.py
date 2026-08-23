@@ -128,3 +128,47 @@ class AppointmentTests(TransactionTestCase):
         
         rescheduled = reschedule_appointment(confirmed.id, self.patient_1, self.test_date, '11:00:00')
         self.assertEqual(rescheduled.start_time, datetime.time(11, 0))
+
+    def test_unauthorized_patient_access_to_appointment(self):
+        from rest_framework.test import APIClient
+        client = APIClient()
+        
+        appt = hold_slot(self.patient_1, self.doctor.id, self.test_date, '10:30:00')
+        
+        # Authenticate as patient_2
+        client.force_authenticate(user=self.patient_2)
+        response = client.get(f'/api/appointments/{appt.id}/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_unauthorized_doctor_access_to_appointment(self):
+        from rest_framework.test import APIClient
+        client = APIClient()
+        
+        doctor_user_2 = User.objects.create_user(
+            email='doctor2@ayusetu.com',
+            name='Dr. Iyer',
+            password='doctorpassword',
+            role='DOCTOR'
+        )
+        
+        appt = hold_slot(self.patient_1, self.doctor.id, self.test_date, '10:30:00')
+        
+        # Authenticate as doctor_user_2
+        client.force_authenticate(user=doctor_user_2)
+        response = client.get(f'/api/appointments/{appt.id}/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_release_expired_holds(self):
+        from appointments.tasks import release_expired_holds_task
+        appt = hold_slot(self.patient_1, self.doctor.id, self.test_date, '10:30:00')
+        self.assertEqual(appt.status, Appointment.Status.HELD)
+        
+        # Backdate hold
+        appt.hold_expires_at = timezone.now() - datetime.timedelta(minutes=1)
+        appt.save()
+        
+        released_count = release_expired_holds_task()
+        self.assertEqual(released_count, 1)
+        
+        appt.refresh_from_db()
+        self.assertEqual(appt.status, Appointment.Status.EXPIRED)

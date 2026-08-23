@@ -54,9 +54,20 @@
   - Designed fallback development mocks: if client secrets are missing, connect flow redirects to callback directly with code `mock_code_123`, saving mock credentials in database. Event synchronization logs mock parameters to console and marks state `ACTIVE` or `DELETED`, avoiding API blockages.
   - Wrote 4 comprehensive tests in `calendar_integration/tests.py` verifying OAuth routes, mock callbacks, sync creation, reschedule patches, and cancel deletes.
   - Verified that all 29 tests across all backend apps compile, run, and pass successfully.
-- **What's next:** Phase 7 (Frontend Dashboards: Patient, Doctor, Admin).
-- **Known issues / Shortcuts:**
-  - Standardized the connect view to return mock callback targets when client settings are missing, ensuring zero-configuration local setups are fully testable.
+## Phase 7: UI & Dashboard Styling (Completed)
+- **What was done:**
+  - Upgraded layouts for Patients, Doctors, and Admin portals.
+  - Implemented a unified styling component package `components/UI.jsx` defining standard card spacing, custom buttons, specialty avatars, and status badges matching the AyuSetu brand guidelines.
+  - Redesigned scheduling pages including live date calendars, slot holding timers, and clinical checkup prescription forms.
+## Phase 8: Backend Integrity & AI Verification Checklist (Completed)
+- **What was done:**
+  - Verified and tested double-booking prevention under concurrent requests.
+  - Verified slot hold blocks and implemented automated database hold releases task `release_expired_holds_task`.
+  - Configured AI pre-visit fallbacks: when OpenAI API exceptions occur, status falls back to `'UNAVAILABLE'`, raw symptoms display, and appointment booking completes successfully.
+  - Confirmed post-visit summary accuracy without inventing clinical data or changing prescription parameters.
+  - Verified doctor leave conflicts canceller, automatic schedule logs updates, and patients leaf emails dispatch.
+  - Tested SimpleJWT API object-level isolation (patients and doctors restricted to non-owned appointments) and verified using new client test cases.
+  - Verified all 31 unit tests across all applications pass successfully.
 
 
 

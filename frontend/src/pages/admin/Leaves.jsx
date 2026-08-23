@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../services/api';
-import { Calendar, Trash2, ShieldAlert, Plus, CheckCircle, User } from 'lucide-react';
+import { Card, Badge, Button, Avatar } from '../../components/UI';
+import { Calendar, Trash2, ShieldAlert, Plus, CheckCircle } from 'lucide-react';
 
 const AdminLeaves = () => {
   const [doctors, setDoctors] = useState([]);
@@ -9,7 +10,6 @@ const AdminLeaves = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Leave Form state
   const [selectedDoctorId, setSelectedDoctorId] = useState('');
   const [leaveDate, setLeaveDate] = useState('');
   const [reason, setReason] = useState('');
@@ -19,14 +19,12 @@ const AdminLeaves = () => {
     setLoading(true);
     setError('');
     try {
-      // 1. Fetch doctors
       const docRes = await API.get('doctors/');
       setDoctors(docRes.data);
       if (docRes.data.length > 0) {
         setSelectedDoctorId(docRes.data[0].id.toString());
       }
 
-      // 2. Fetch detailed profiles of all doctors to extract leaves list
       const leavesList = [];
       for (const doc of docRes.data) {
         try {
@@ -44,7 +42,6 @@ const AdminLeaves = () => {
         }
       }
       
-      // Sort leaves by date descending
       leavesList.sort((a, b) => new Date(b.leave_date) - new Date(a.leave_date));
       setAllLeaves(leavesList);
     } catch (err) {
@@ -101,121 +98,119 @@ const AdminLeaves = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Doctor Leave Management</h1>
-        <p className="text-slate-500 text-sm mt-1">Schedule leaves for doctors, cancel conflict bookings, and notify patients automatically.</p>
+        <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Doctor Leave Configurations</h1>
+        <p className="text-slate-500 text-sm mt-1">Schedule leaves for clinical specialists, cancel conflicting bookings, and notify patients.</p>
       </div>
 
       {success && (
-        <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-xl text-sm text-emerald-800 flex items-center space-x-2">
+        <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-xl text-xs font-bold text-emerald-800 flex items-center space-x-2">
           <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />
           <span>{success}</span>
         </div>
       )}
 
       {error && (
-        <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-xl text-sm text-rose-800 flex items-center space-x-2">
+        <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-xl text-xs font-bold text-rose-800 flex items-center space-x-2">
           <ShieldAlert className="h-5 w-5 text-rose-600 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Register Leave Form */}
-        <div className="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm h-fit">
-          <h3 className="font-bold text-slate-800 mb-4 flex items-center space-x-2 border-b border-slate-100 pb-2">
-            <Plus className="h-5 w-5 text-primary-600" />
-            <span>Schedule Leave</span>
-          </h3>
+        {/* Schedule Leave Form */}
+        <div className="lg:col-span-1">
+          <Card title="Schedule Doctor Leave" subtitle="Enforcing leave blocks slots and releases pending bookings.">
+            <form onSubmit={handleAddLeave} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Select Doctor</label>
+                <select
+                  value={selectedDoctorId}
+                  onChange={(e) => setSelectedDoctorId(e.target.value)}
+                  className="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800 font-bold bg-white"
+                >
+                  {doctors.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      Dr. {d.user.name} ({d.specialization})
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          <form onSubmit={handleAddLeave} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-600 mb-1 uppercase">Select Practitioner</label>
-              <select
-                value={selectedDoctorId}
-                onChange={(e) => setSelectedDoctorId(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800"
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Leave Date</label>
+                <input
+                  type="date"
+                  required
+                  value={leaveDate}
+                  min={new Date().toISOString().split('T')[0]}
+                  onChange={(e) => setLeaveDate(e.target.value)}
+                  className="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800 font-semibold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Reason / Note</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Medical Conference, Personal off..."
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  className="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800 font-semibold"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={submitting}
+                className="w-full"
               >
-                {doctors.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    Dr. {d.user.name} ({d.specialization})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-600 mb-1 uppercase">Leave Date</label>
-              <input
-                type="date"
-                required
-                value={leaveDate}
-                min={new Date().toISOString().split('T')[0]}
-                onChange={(e) => setLeaveDate(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-600 mb-1 uppercase">Reason / Note</label>
-              <input
-                type="text"
-                placeholder="e.g. Medical Conference, Personal off..."
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full py-2.5 px-4 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-md transition-all disabled:opacity-50"
-            >
-              {submitting ? 'Registering Leave...' : 'Schedule Leave'}
-            </button>
-          </form>
+                {submitting ? 'Registering Leave...' : 'Schedule Leave'}
+              </Button>
+            </form>
+          </Card>
         </div>
 
         {/* Global Leaves Listing */}
-        <div className="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm lg:col-span-2">
-          <h3 className="font-bold text-slate-800 mb-4 flex items-center space-x-2 border-b border-slate-100 pb-2">
-            <Calendar className="h-5 w-5 text-primary-600" />
-            <span>Active Leave Schedule Ledger</span>
-          </h3>
-
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
-            </div>
-          ) : allLeaves.length === 0 ? (
-            <p className="text-slate-500 text-sm text-center py-6">No scheduled practitioner leaves recorded.</p>
-          ) : (
-            <div className="divide-y divide-slate-100">
-              {allLeaves.map((leave, idx) => (
-                <div key={idx} className="py-3 flex justify-between items-center hover:bg-slate-50/30 px-2 rounded-xl transition-all">
-                  <div className="space-y-1">
-                    <h4 className="font-bold text-slate-800">Dr. {leave.doctor.user.name}</h4>
-                    <div className="flex items-center space-x-2.5 text-xs text-slate-500">
-                      <span className="font-bold text-slate-700">{leave.leave_date}</span>
-                      {leave.reason && (
-                        <>
-                          <span>•</span>
-                          <span>{leave.reason}</span>
-                        </>
-                      )}
+        <div className="lg:col-span-2">
+          <Card title="Active Leave Schedule Ledger" subtitle="List of scheduled leaves for doctor profiles.">
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+              </div>
+            ) : allLeaves.length === 0 ? (
+              <p className="text-xs text-slate-400 py-6 text-center">No scheduled practitioner leaves recorded.</p>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {allLeaves.map((leave, idx) => (
+                  <div key={idx} className="py-4 flex justify-between items-center hover:bg-slate-50/30 px-3 rounded-2xl transition-all">
+                    <div className="flex items-center space-x-3.5">
+                      <Avatar name={leave.doctor.user.name} specialization={leave.doctor.specialization} />
+                      <div className="space-y-0.5">
+                        <h4 className="font-bold text-slate-800 text-sm">Dr. {leave.doctor.user.name}</h4>
+                        <div className="flex items-center space-x-2 text-xs text-slate-400 font-semibold">
+                          <span className="text-slate-600 font-bold">{leave.leave_date}</span>
+                          {leave.reason && (
+                            <>
+                              <span>•</span>
+                              <span>{leave.reason}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  <button
-                    onClick={() => handleDeleteLeave(leave.doctor.id, leave.leave_date, leave.doctor.user.name)}
-                    className="p-2 border border-rose-100 hover:bg-rose-50 text-rose-600 hover:text-rose-700 rounded-xl transition-all"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+                    <button
+                      onClick={() => handleDeleteLeave(leave.doctor.id, leave.leave_date, leave.doctor.user.name)}
+                      className="p-2 border border-rose-100 hover:bg-rose-50 text-rose-500 hover:text-rose-600 rounded-xl transition-all cursor-pointer"
+                    >
+                      <Trash2 className="h-4.5 w-4.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
         </div>
       </div>
     </div>

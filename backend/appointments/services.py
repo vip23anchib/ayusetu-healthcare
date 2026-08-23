@@ -288,10 +288,17 @@ def reschedule_appointment(appointment_id, user, new_date, new_start_time_str):
 
     # Check working hours
     day_of_week = new_date.weekday()
-    working_hours = DoctorWorkingHours.objects.filter(doctor=doctor, day_of_week=day_of_week).first()
-    if not working_hours:
+    working_hours_list = DoctorWorkingHours.objects.filter(doctor=doctor, day_of_week=day_of_week)
+    if not working_hours_list.exists():
         raise ValidationError("Doctor does not work on this day of the week.")
-    if new_start_time < working_hours.start_time or end_time > working_hours.end_time:
+    
+    in_hours = False
+    for wh in working_hours_list:
+        if new_start_time >= wh.start_time and end_time <= wh.end_time:
+            in_hours = True
+            break
+            
+    if not in_hours:
         raise ValidationError("Slot is outside doctor's working hours.")
 
     # Check leave

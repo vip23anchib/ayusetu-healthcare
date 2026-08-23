@@ -1,18 +1,31 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #f0f9ff;
-  --color-primary-100: #e0f2fe;
-  --color-primary-200: #bae6fd;
-  --color-primary-300: #7dd3fc;
-  --color-primary-400: #38bdf8;
-  --color-primary-500: #0ea5e9;
-  --color-primary-600: #0284c7;
-  --color-primary-700: #0369a1;
-  --color-primary-800: #075985;
-  --color-primary-900: #0c4a6e;
-}
+  /* ── AyuSetu Brand Colors ── */
+  /* Deep navy (Ayu) */
+  --color-navy-50: #edf2f8;
+  --color-navy-100: #d0dff0;
+  --color-navy-200: #a1bde0;
+  --color-navy-300: #6f99ce;
+  --color-navy-400: #3d75bc;
+  --color-navy-500: #2a5fa0;
+  --color-navy-600: #1e4d88;
+  --color-navy-700: #1e3a5f;
+  --color-navy-800: #162d4a;
+  --color-navy-900: #0e1f34;
 
+  /* Teal (Setu) */
+  --color-primary-50: #e6f7f6;
+  --color-primary-100: #c0eceb;
+  --color-primary-200: #87d8d6;
+  --color-primary-300: #4ec4c0;
+  --color-primary-400: #26b0ab;
+  --color-primary-500: #0f9b8e;
+  --color-primary-600: #0d8578;
+  --color-primary-700: #0a6e64;
+  --color-primary-800: #075851;
+  --color-primary-900: #04423d;
+}
 
 body {
   margin: 0;
@@ -22,4 +35,39 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-smoothing: grayscale;
   background-color: #f8fafc;
+  color: #1e293b;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Dark mode body state */
+html.dark body {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+/* Two-tone brand wordmark — "Ayu" in navy, "Setu" in teal */
+.brand-wordmark {
+  font-family: 'Baloo 2', 'Inter', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.brand-ayu {
+  color: #1e3a5f;
+}
+html.dark .brand-ayu {
+  color: #38bdf8;
+}
+.brand-setu {
+  color: #0f9b8e;
+}
+html.dark .brand-setu {
+  color: #26b0ab;
+}
+
+/* Elevated card shadow & borders */
+.elevated-card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+html.dark .elevated-card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
