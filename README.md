@@ -1,219 +1,301 @@
-# AyuSetu — AI-Powered Healthcare Appointment & Management Platform
+# AyuSetu — AI-Powered Healthcare Appointment & Follow-up Platform
 
-
-## Problem Statement
-
-Scheduling clinic appointments in India is still largely phone-based, leading to double-bookings, missed follow-ups, and no structured pre-visit information for doctors. **AyuSetu** (translating to *"Bridge of Health"*) is a full-stack clinical appointment platform that allows patients to self-book slots, submit symptoms before their visit, and receive AI-generated triage summaries and post-visit instructions — while giving doctors and clinic admins structured oversight of schedules, leaves, and consultation records.
+> *Bridge of Health* — A full-stack clinical appointment system with AI-powered symptom triage, doctor consultation management, and automated patient follow-up.
 
 ---
 
-## ✅ Verified Working Features
+## 📚 Documentation
 
-> Every item below was verified against the running application, not inferred from code.
-
-- **Patient Portal**: Register/login, browse doctors by specialisation, book an appointment slot, submit pre-visit symptoms, view upcoming & past appointments, reschedule or cancel, view AI triage summary and post-visit instructions.
-- **Doctor Portal**: View today's schedule, view patient chief complaint and AI-generated triage questions before a consult, write consultation notes, add prescriptions with medications, finalize consult (triggers post-visit AI summary + email).
-- **Admin Portal**: Register doctors, configure slot duration, schedule doctor leaves (auto-cancels conflicting appointments and notifies patients), view global appointment ledger with patient/doctor/date/status filters, view any appointment detail.
-- **Double-Booking Prevention**: `select_for_update()` row lock + partial unique index on `(doctor, date, start_time)` returns HTTP 409 on concurrent booking conflicts.
-- **5-Minute Slot Hold**: Booking creates a `HELD` status with `hold_expires_at`; a Django-Q periodic task releases expired holds automatically.
-- **AI Pre-Visit Triage**: OpenAI `gpt-4o-mini` analyzes submitted symptoms and returns urgency level (LOW/MEDIUM/HIGH), chief complaint, and 3 suggested doctor questions. Falls back to keyword-based mock if API key is absent.
-- **AI Post-Visit Summary**: After a doctor finalizes notes, OpenAI converts clinical notes + medications into a patient-friendly summary.
-- **Email Notifications**: Booking confirmation, cancellation, and doctor-leave cancellation emails with retry logic (up to 3 attempts, 2-minute backoff).
-- **Google Calendar Sync**: Adds appointment as a calendar event on the patient's Google Calendar after OAuth 2.0 authorization. Falls back gracefully if credentials are missing.
-- **Light / Dark Theme**: Persistent theme toggle (localStorage) with full contrast support across all three portals.
-
----
-
-## 🛠️ Technology Stack
-
-| Layer | Technology |
+| Document | Description |
 | :--- | :--- |
-| **Frontend** | React 18, Vite, Tailwind CSS v4, Lucide Icons, Axios |
+| [API Documentation](docs/api-documentation.md) | Every endpoint — method, path, request/response shapes, error codes |
+| [Database Schema](docs/database-schema.md) | ER diagram, all tables, constraints, and design decisions |
+| [System Design](docs/system-design.md) | Double-booking prevention, slot holds, leave conflicts, notification retry |
+| [Architecture Overview](docs/architecture.md) | System diagram, service layer isolation, layer-by-layer walkthrough |
+| [LLM Prompts](docs/llm-prompts.md) | Verbatim OpenAI prompts for pre-visit triage and post-visit summary |
+| [Google Calendar Setup](docs/google-calendar-setup.md) | Step-by-step OAuth 2.0 credential setup guide |
+| [Full Narrative Guide](docs/full-guide.md) | In-depth architecture, deployment walkthrough, and roadmap |
+| [Interview Prep Q&A](docs/interview-prep.md) | Top 10 anticipated technical questions and answers |
+
+---
+
+## 🌐 Live Demo
+
+| Service | URL |
+| :--- | :--- |
+| **Frontend (Vercel)** | *https://ayusetu.vercel.app* |
+| **Backend API (Render)** | *https://ayusetu-api.onrender.com* |
+
+> Use the [Demo Credentials](#-demo-credentials) below to log in. The backend on Render's free tier may take ~30 seconds to cold-start on the first request.
+
+---
+
+## 🎯 Problem Statement
+
+Scheduling clinic appointments in India is still largely phone-based, leading to double-bookings, missed follow-ups, and no structured pre-visit information for doctors. **AyuSetu** is a full-stack platform that lets patients self-book slots and submit symptoms before their visit, gives doctors an AI-generated triage summary and structured consultation workflow, and provides clinic admins oversight of schedules, leaves, and appointment activity — all with concurrency-safe booking and automated email notifications.
+
+---
+
+## ✅ Features (Verified Working)
+
+### Patient Portal
+- Browse doctors by specialisation, view available slots per date
+- Book appointment with 5-minute slot hold (prevents concurrent double-booking)
+- Submit pre-visit symptoms → receive AI triage summary (urgency, chief complaint, suggested questions)
+- View upcoming and past appointments with full detail
+- Reschedule or cancel appointments
+- View post-visit instructions generated by AI from doctor's notes
+- Receive email notifications for booking confirmation, cancellation, and rescheduling
+
+### Doctor Portal
+- View today's schedule with patient chief complaints and AI-suggested questions
+- Write consultation notes, add multi-medication prescriptions
+- Finalize consultation → triggers AI post-visit summary + email to patient
+- View full appointment history
+
+### Admin Portal
+- Register and manage doctor profiles (specialisation, slot duration)
+- Configure doctor working hours (supports split shifts)
+- Schedule doctor leaves — auto-cancels conflicting appointments and notifies affected patients
+- Global appointment ledger with search, filter by status/date/doctor, and row-level detail view
+
+### Cross-Cutting
+- **Double-booking prevention**: `select_for_update()` row lock + partial unique index → HTTP 409 on conflict
+- **Slot hold lease**: 5-minute `HELD` state with periodic cleanup of expired holds
+- **Email notifications**: Retry logic (3 attempts, 2-minute backoff) with `PENDING → PROCESSING → SENT / FAILED` state machine
+- **Google Calendar sync**: OAuth 2.0 → calendar event created on booking confirmation
+- **Light / Dark theme**: Persistent toggle with full contrast support across all portals
+- **31 automated tests**: Accounts, doctors, appointments, consultations, notifications, calendar integration
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 19, Vite 8, Tailwind CSS v4, React Router v7, Axios, Lucide Icons, React Hook Form |
 | **Backend** | Python 3.10+, Django 6.1, Django REST Framework, SimpleJWT |
-| **Database** | PostgreSQL (production) / SQLite (local dev) |
-| **Async Workers** | django-q2 (ORM broker, synchronous fallback on Windows) |
-| **AI** | OpenAI API — `gpt-4o-mini` |
+| **Database** | PostgreSQL (production via Neon) / SQLite (local dev) |
+| **Background Jobs** | django-q2 (ORM broker; synchronous fallback on Windows) |
+| **AI** | OpenAI API — `gpt-4o-mini` (via `httpx`) |
 | **Email** | SendGrid SMTP (production) / Django console backend (dev) |
-| **Calendar** | Google Calendar API v3, OAuth 2.0 |
-| **Hosting** | Vercel (frontend) · Render (backend) · Neon (PostgreSQL) |
+| **Calendar** | Google Calendar API v3 — `google-api-python-client`, `google-auth-oauthlib` |
+| **Hosting** | Vercel (frontend) · Render (backend) · Neon (PostgreSQL) · Upstash (Redis, optional) |
 
 ---
 
-## 🏗️ Architecture Overview
+## 🏗️ Architecture
+
+The system follows a strict **Views → Service Layer → External APIs** pattern. Views handle HTTP/auth only; all business logic lives in service modules; all external API calls (OpenAI, SendGrid, Google Calendar) run asynchronously via Django-Q background tasks, never in the request/response cycle.
 
 ```
-[Patient/Doctor/Admin Browser]
-        │  HTTPS (JWT Bearer)
-        ▼
-[Vite/React SPA — Vercel]
-        │  REST API calls to /api/
-        ▼
-[Django REST Framework — Render]
-  ├── accounts/      → Auth (register, login, JWT)
-  ├── doctors/       → Doctor profiles, working hours, leaves (admin-only writes)
-  ├── appointments/  → Hold → Confirm (symptoms) → Complete/Cancel/Reschedule
-  ├── consultations/ → Notes, prescriptions, pre/post-visit AI summaries
-  ├── notifications/ → Email queue with retry state machine
-  ├── ai/            → OpenAI wrapper (pre-visit triage + post-visit summary)
-  └── calendar_integration/ → Google OAuth + Calendar event creation
-        │  Django-Q ORM task queue
-        ▼
-[PostgreSQL — Neon]         [Redis — optional, falls back to ORM]
+React SPA (Vercel) → REST API (Bearer JWT) → Django/DRF Views
+    → Service Layer (transaction.atomic + select_for_update)
+        → PostgreSQL (Neon)
+        → Django-Q Task Queue → ai_service → OpenAI
+                              → notification_service → SendGrid
+                              → calendar_service → Google Calendar API
 ```
 
-See [`docs/full-guide.md`](docs/full-guide.md) for a full narrative walkthrough.
+See [docs/architecture.md](docs/architecture.md) for the full Mermaid system diagram and layer-by-layer walkthrough.
 
 ---
 
-## ⚡ Local Setup (Zero Prior Setup Assumed)
+## 📁 Project Structure
+
+```
+ayusetu-healthcare/
+├── backend/
+│   ├── accounts/              # User model, auth (register/login/JWT)
+│   ├── doctors/               # Doctor profiles, working hours, leaves
+│   ├── appointments/          # Booking: hold → confirm → complete/cancel
+│   ├── consultations/         # Notes, prescriptions, AI summaries
+│   ├── notifications/         # Email queue with retry state machine
+│   ├── ai/                    # OpenAI wrapper (pre-visit + post-visit)
+│   ├── calendar_integration/  # Google Calendar OAuth + event sync
+│   ├── config/                # Django settings, URL config, WSGI
+│   ├── requirements.txt
+│   └── .env.example           # All environment variables with descriptions
+├── frontend/
+│   ├── src/
+│   │   ├── pages/             # patient/, doctor/, admin/, auth/ page components
+│   │   ├── components/        # Layout, ProtectedRoute, shared UI
+│   │   ├── context/           # AuthContext, ThemeContext
+│   │   └── services/          # Axios API client
+│   ├── package.json
+│   └── vite.config.js
+├── docs/                      # All documentation (see index above)
+├── README.md
+└── .gitignore
+```
+
+---
+
+## ⚡ Local Setup
 
 ### Prerequisites
-- **Python 3.10+** — [python.org](https://www.python.org/downloads/)
-- **Node.js 18+ & npm** — [nodejs.org](https://nodejs.org/)
-- **PostgreSQL** (optional for local dev — SQLite is used automatically if `DATABASE_URL` is unset)
-- **Redis** (optional — Django-Q falls back to ORM/synchronous mode without it)
+
+- **Python 3.10+** — [python.org/downloads](https://www.python.org/downloads/)
+- **Node.js 18+** and **npm** — [nodejs.org](https://nodejs.org/)
+- **PostgreSQL** *(optional for local dev — SQLite is used automatically if `DATABASE_URL` is unset)*
+- **Redis** *(optional — Django-Q falls back to synchronous ORM mode without it)*
 
 ### 1. Clone the repository
+
 ```bash
 git clone https://github.com/vip23anchib/ayusetu-healthcare.git
 cd ayusetu-healthcare
 ```
 
-### 2. Backend Setup
+### 2. Backend setup
 
 ```bash
 cd backend
 
-# Create & activate virtual environment
+# Create and activate a virtual environment
 python -m venv venv
 
 # Windows (PowerShell):
 .\venv\Scripts\Activate.ps1
+
 # macOS / Linux:
 source venv/bin/activate
 
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Copy environment template and edit values
+# Create your local environment file
 cp .env.example .env
-# Edit backend/.env — at minimum, leave DATABASE_URL empty to use SQLite
+# Edit backend/.env — at minimum, leave DATABASE_URL empty to use SQLite for local dev
+# See the Environment Variables section below for what each variable does
 
-# Apply migrations
+# Apply database migrations
 python manage.py migrate
 
-# Seed authentic Indian demo data (doctors, patients, admin)
+# Seed demo data (doctors, patients, admin accounts)
 python manage.py seed_data
-
-# (Optional) Run the full test suite — 31 tests
-python manage.py test accounts doctors appointments consultations notifications calendar_integration
 
 # Start the backend server
 python manage.py runserver
-# → Listening at http://127.0.0.1:8000
+# → http://127.0.0.1:8000
 ```
 
-> **Windows / No Redis note:** Django-Q runs tasks synchronously by default (`DJANGO_Q_SYNC=True` in `.env`). No separate worker process is needed for local dev.
+### 3. Frontend setup
 
-### 3. Frontend Setup
+Open a **new terminal window**:
 
-Open a **new terminal**:
 ```bash
 cd frontend
 
 # Install Node packages
 npm install
 
-# Start Vite dev server
+# Start the Vite dev server
 npm run dev
 # → http://localhost:5173
 ```
 
-### 4. (Optional) Background Workers — Linux/macOS with Redis
+### 4. (Optional) Background workers with Redis
 
-If you set `REDIS_URL` in `.env` and `DJANGO_Q_SYNC=False`:
+By default on Windows/local dev, Django-Q runs tasks **synchronously** (`DJANGO_Q_SYNC=True`) — no separate worker process needed. For async processing:
+
 ```bash
+# Install and start Redis locally, then set in backend/.env:
+#   REDIS_URL=redis://localhost:6379
+#   DJANGO_Q_SYNC=False
+
 # In a third terminal, with the venv activated:
 cd backend
 python manage.py qcluster
 ```
 
+### 5. Run the test suite
+
+```bash
+cd backend
+python manage.py test accounts doctors appointments consultations notifications calendar_integration
+# → 31 tests should pass
+```
+
 ---
 
-## 🔐 Demo Credentials (seeded by `seed_data`)
+## 🔧 Environment Variables
+
+All variables are defined in [`backend/.env.example`](backend/.env.example). Summary:
+
+| Variable | Required | Description |
+| :--- | :---: | :--- |
+| `SECRET_KEY` | ✅ | Django secret key — generate a unique one for production |
+| `DEBUG` | ✅ | `True` for dev, `False` for production |
+| `DATABASE_URL` | — | PostgreSQL URL. If blank, SQLite is used (local dev only) |
+| `JWT_SECRET_KEY` | ✅ | JWT signing key (can equal `SECRET_KEY`) |
+| `OPENAI_API_KEY` | — | Enables AI triage. Falls back to keyword-based mock if absent |
+| `EMAIL_PROVIDER` | ✅ | `console` (dev — prints to terminal) or `sendgrid` (production) |
+| `EMAIL_API_KEY` | — | SendGrid API key. Only needed if `EMAIL_PROVIDER=sendgrid` |
+| `EMAIL_FROM` | ✅ | Sender address for outgoing emails |
+| `GOOGLE_CLIENT_ID` | — | Google Calendar OAuth. Calendar sync disabled if absent |
+| `GOOGLE_CLIENT_SECRET` | — | Google Calendar OAuth |
+| `GOOGLE_REDIRECT_URI` | ✅ | OAuth callback URL — must match Google Cloud Console exactly |
+| `REDIS_URL` | — | Redis URL for Django-Q. Falls back to synchronous ORM if blank |
+| `DJANGO_Q_SYNC` | ✅ | `True` = tasks run inline (Windows/CI). `False` = async workers |
+| `FRONTEND_URL` | ✅ | Used in email templates for links back to the app |
+| `BACKEND_URL` | ✅ | Used in calendar OAuth redirects |
+
+---
+
+## 🔐 Demo Credentials
+
+> ⚠️ These are **fake demo accounts** seeded by `python manage.py seed_data`. All passwords and emails are test-only.
 
 | Role | Name | Email | Password |
 | :--- | :--- | :--- | :--- |
-| **Patient** | Rohan Malhotra | `rohan.malhotra@example.com` | `Patient@123` |
-| **Patient** | Ananya Reddy | `ananya.reddy@example.com` | `Patient@123` |
-| **Patient** | Aditya Sharma | `aditya.sharma@example.com` | `Patient@123` |
-| **Patient** | Priya Nair | `priya.nair@example.com` | `Patient@123` |
-| **Patient** | Kabir Mehta | `kabir.mehta@example.com` | `Patient@123` |
+| **Admin** | Clinic Administrator | `admin@ayusetu.com` | `Admin@123` |
 | **Doctor** | Dr. Ananya Reddy *(Cardiology)* | `dr.ananya.reddy@example.com` | `Doctor@123` |
 | **Doctor** | Dr. Vikram Iyer *(General Physician)* | `dr.vikram.iyer@example.com` | `Doctor@123` |
 | **Doctor** | Dr. Meera Krishnan *(Dermatology)* | `dr.meera.krishnan@example.com` | `Doctor@123` |
 | **Doctor** | Dr. Arjun Kapoor *(Orthopedics)* | `dr.arjun.kapoor@example.com` | `Doctor@123` |
 | **Doctor** | Dr. Sana Sheikh *(Pediatrics)* | `dr.sana.sheikh@example.com` | `Doctor@123` |
 | **Doctor** | Dr. Rajesh Nair *(ENT Specialist)* | `dr.rajesh.nair@example.com` | `Doctor@123` |
-| **Admin** | Clinic Admin | `admin@ayusetu.com` | `Admin@123` |
+| **Patient** | Rohan Malhotra | `rohan.malhotra@example.com` | `Patient@123` |
+| **Patient** | Ananya Reddy | `ananya.reddy@example.com` | `Patient@123` |
+| **Patient** | Aditya Sharma | `aditya.sharma@example.com` | `Patient@123` |
+| **Patient** | Priya Nair | `priya.nair@example.com` | `Patient@123` |
+| **Patient** | Kabir Mehta | `kabir.mehta@example.com` | `Patient@123` |
 
 ---
 
-## 🔧 Environment Variables Reference
+## 🚀 Deployment
 
-All variables are defined in `backend/.env.example`. Key ones:
+AyuSetu is configured for deployment on the following services:
 
-| Variable | Required | Description |
+| Component | Service | Notes |
 | :--- | :--- | :--- |
-| `SECRET_KEY` | ✅ | Django secret key (generate a unique one for production) |
-| `DEBUG` | ✅ | `True` for dev, `False` for production |
-| `DATABASE_URL` | ⚠️ | Postgres URL. If blank, SQLite is used. |
-| `JWT_SECRET_KEY` | ✅ | JWT signing key (can equal `SECRET_KEY`) |
-| `OPENAI_API_KEY` | ⚠️ | AI triage features. Falls back to keyword mock if absent. |
-| `EMAIL_PROVIDER` | ✅ | `console` (dev) or `sendgrid` (production) |
-| `EMAIL_API_KEY` | ⚠️ | SendGrid API key. Only needed if `EMAIL_PROVIDER=sendgrid`. |
-| `GOOGLE_CLIENT_ID` | ⚠️ | Google Calendar OAuth. Calendar sync disabled if absent. |
-| `GOOGLE_CLIENT_SECRET` | ⚠️ | Google Calendar OAuth. |
-| `GOOGLE_REDIRECT_URI` | ✅ | OAuth callback URL. Must match Google Cloud Console setting. |
-| `REDIS_URL` | ⚠️ | Redis for Django-Q. Falls back to synchronous ORM if blank. |
-| `DJANGO_Q_SYNC` | ✅ | `True` = synchronous tasks (Windows/CI). `False` = async workers. |
-| `FRONTEND_URL` | ✅ | Used in email templates for links back to the app. |
-| `BACKEND_URL` | ✅ | Used in calendar OAuth redirects. |
+| **Frontend** | [Vercel](https://vercel.com) | Connect GitHub repo → set root directory to `frontend` → auto-deploys on push |
+| **Backend** | [Render](https://render.com) | Web service → root directory `backend` → build: `pip install -r requirements.txt && python manage.py migrate && python manage.py seed_data` → start: `gunicorn config.wsgi:application --bind 0.0.0.0:$PORT` |
+| **Database** | [Neon](https://neon.tech) | Managed PostgreSQL → copy connection string to `DATABASE_URL` |
+| **Redis** | [Upstash](https://upstash.com) | Redis for Django-Q async workers → copy URL to `REDIS_URL`, set `DJANGO_Q_SYNC=False` |
 
----
+Key production settings:
+- Set `DEBUG=False` and generate a real `SECRET_KEY`
+- Set `CORS_ALLOWED_ORIGINS` to the frontend Vercel URL
+- Set `GOOGLE_REDIRECT_URI` to the deployed backend callback URL
+- Set `EMAIL_PROVIDER=sendgrid` and `EMAIL_API_KEY` for real email delivery
 
-## 🚀 Live Demo
-
-> **Deployment status:** This project is configured for deployment to Vercel (frontend) + Render (backend) + Neon PostgreSQL. See [`docs/full-guide.md`](docs/full-guide.md) for the complete step-by-step deployment guide.
-
-| Service | URL |
-| :--- | :--- |
-| **Frontend** | *(deploy to Vercel — see deployment guide)* |
-| **Backend API** | *(deploy to Render — see deployment guide)* |
+See [docs/full-guide.md](docs/full-guide.md) for the complete step-by-step deployment walkthrough.
 
 ---
 
 ## ⚠️ Known Limitations
 
-1. **Google Calendar OAuth requires user authorization** — works locally with valid credentials; in production, the redirect URI must be updated to the deployed backend URL.
-2. **AI triage is not a medical diagnosis** — summaries are clearly labeled and wrapped in disclaimers. The app operates in triage-assist mode only.
-3. **Django-Q on Windows** runs in synchronous mode (`DJANGO_Q_SYNC=True`) because Windows does not support forking. In production (Linux), set `DJANGO_Q_SYNC=False` and run `python manage.py qcluster`.
-4. **Email in dev** defaults to `console` backend — emails print to the terminal, not delivered to inboxes. Set `EMAIL_PROVIDER=sendgrid` + `EMAIL_API_KEY` for real delivery.
-5. **SQLite limitations for concurrency** — The `select_for_update()` row lock is fully effective only on PostgreSQL. Use `DATABASE_URL` pointing to Postgres in any multi-user testing scenario.
+Built under a 2-day MVP constraint. The following were intentionally simplified:
 
----
-
-## 📚 Documentation Index
-
-| Document | Description |
-| :--- | :--- |
-| [`docs/full-guide.md`](docs/full-guide.md) | Complete narrative guide: architecture, mechanisms, deployment, roadmap |
-| [`docs/system-design.md`](docs/system-design.md) | Concurrency controls, slot hold, leave conflict, notification retry |
-| [`docs/database-schema.md`](docs/database-schema.md) | All tables, columns, constraints, indexes, and DB selection rationale |
-| [`docs/api-documentation.md`](docs/api-documentation.md) | Every implemented endpoint with request/response shapes and error codes |
-| [`docs/llm-prompts.md`](docs/llm-prompts.md) | Verbatim AI prompts used for pre-visit triage and post-visit summaries |
-| [`docs/google-calendar-setup.md`](docs/google-calendar-setup.md) | Step-by-step Google Cloud OAuth setup guide |
-| [`docs/interview-prep.md`](docs/interview-prep.md) | Top technical interview Q&A for this project |
+1. **No real-time updates** — The frontend polls on page load; there are no WebSocket or SSE push notifications for live schedule changes.
+2. **SQLite limitations** — `select_for_update()` row locking is fully effective only on PostgreSQL. Local SQLite dev falls back to the partial unique index as the sole concurrency guard.
+3. **Django-Q on Windows** runs synchronously (`DJANGO_Q_SYNC=True`) because Windows does not support `os.fork()`. Set `False` in production on Linux.
+4. **Google Calendar** requires per-user OAuth authorization and is in "Testing" mode (only pre-added test users can authorize). Full public use requires Google verification.
+5. **AI triage is not a diagnosis** — Summaries are clearly labeled as clinician-review aids. If `OPENAI_API_KEY` is absent, a keyword-based mock is used instead.
+6. **Email in dev** defaults to `console` backend — emails print to the terminal, not delivered to real inboxes.
+7. **No file uploads** — Patient documents, images, and lab reports are out of scope for this MVP.
 
 ---
 
