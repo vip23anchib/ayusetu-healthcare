@@ -2,12 +2,12 @@ import React from 'react';
 
 // Card Component with dark mode & elevated contrast
 export const Card = ({ children, className = '', title, subtitle, action }) => (
-  <div className={`bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 elevated-card p-6 transition-all ${className}`}>
+  <div className={`bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 elevated-card p-6 transition-all ${className}`}>
     {(title || subtitle || action) && (
       <div className="flex items-center justify-between mb-5 border-b border-slate-100 dark:border-slate-700/60 pb-4">
         <div>
-          {title && <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">{title}</h3>}
-          {subtitle && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>}
+          {title && <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">{title}</h3>}
+          {subtitle && <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>}
         </div>
         {action && <div>{action}</div>}
       </div>
@@ -21,17 +21,17 @@ export const Badge = ({ status }) => {
   const getStyles = () => {
     switch (status) {
       case 'CONFIRMED':
-        return 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
+        return 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700';
       case 'COMPLETED':
-        return 'bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800';
+        return 'bg-sky-50 dark:bg-sky-950/80 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-700';
       case 'CANCELLED':
-        return 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800';
+        return 'bg-rose-50 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-700';
       case 'HELD':
-        return 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800';
+        return 'bg-amber-50 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700';
       case 'EXPIRED':
-        return 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700';
+        return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700';
       default:
-        return 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700';
+        return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700';
     }
   };
   return (
@@ -65,14 +65,14 @@ export const Button = ({ children, onClick, type = 'button', variant = 'primary'
 
 // Empty State template
 export const EmptyState = ({ icon: Icon, title, message, actionText, onAction }) => (
-  <div className="flex flex-col items-center justify-center text-center p-8 bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 elevated-card min-h-[300px]">
+  <div className="flex flex-col items-center justify-center text-center p-8 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 elevated-card min-h-[300px]">
     {Icon && (
-      <div className="bg-slate-100 dark:bg-slate-700/60 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-600/60 mb-4 text-slate-500 dark:text-slate-400">
+      <div className="bg-slate-100 dark:bg-slate-700/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-600 mb-4 text-slate-500 dark:text-slate-400">
         <Icon className="h-8 w-8" />
       </div>
     )}
-    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{title}</h3>
-    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">{message}</p>
+    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">{title}</h3>
+    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1 max-w-sm">{message}</p>
     {actionText && onAction && (
       <Button onClick={onAction} className="mt-5" variant="primary">
         {actionText}
@@ -81,17 +81,17 @@ export const EmptyState = ({ icon: Icon, title, message, actionText, onAction })
   </div>
 );
 
-// Specialty colored Avatar initial circles with dark mode support
+// Specialty colored Avatar initial circles with dark mode contrast
 export const Avatar = ({ name, specialization = '' }) => {
   const getBgColor = () => {
     switch (specialization.toLowerCase()) {
-      case 'cardiology': return 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800';
-      case 'general physician': return 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
-      case 'dermatology': return 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800';
-      case 'orthopedics': return 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800';
-      case 'pediatrics': return 'bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800';
-      case 'ent specialist': return 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800';
-      default: return 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600';
+      case 'cardiology': return 'bg-rose-50 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800';
+      case 'general physician': return 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
+      case 'dermatology': return 'bg-purple-50 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800';
+      case 'orthopedics': return 'bg-amber-50 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800';
+      case 'pediatrics': return 'bg-cyan-50 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800';
+      case 'ent specialist': return 'bg-indigo-50 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800';
+      default: return 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-600';
     }
   };
   

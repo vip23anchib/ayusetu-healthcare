@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* ── AyuSetu Brand Colors ── */
   /* Deep navy (Ayu) */
@@ -36,7 +38,7 @@ body {
   -moz-osx-smoothing: grayscale;
   background-color: #f8fafc;
   color: #1e293b;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 /* Dark mode body state */
@@ -66,8 +68,52 @@ html.dark .brand-setu {
 
 /* Elevated card shadow & borders */
 .elevated-card {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
 }
 html.dark .elevated-card {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.25);
+}
+
+/* Form input styling helper */
+.theme-input {
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+html.dark .theme-input {
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+.theme-input::placeholder {
+  color: #94a3b8;
+}
+html.dark .theme-input::placeholder {
+  color: #64748b;
+}
+
+/* Table styling helper */
+.theme-table th {
+  background-color: #f8fafc;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+html.dark .theme-table th {
+  background-color: #0f172a;
+  color: #94a3b8;
+  border-color: #334155;
+}
+.theme-table td {
+  border-color: #f1f5f9;
+  color: #1e293b;
+}
+html.dark .theme-table td {
+  border-color: #334155/60;
+  color: #f1f5f9;
+}
+.theme-table tr:hover {
+  background-color: #f8fafc;
+}
+html.dark .theme-table tr:hover {
+  background-color: #1e293b/60;
 }
