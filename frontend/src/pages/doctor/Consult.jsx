@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../../services/api';
 import { Card, Button, Avatar } from '../../components/UI';
-import { Calendar, Clock, Stethoscope, AlertTriangle, ShieldAlert, Heart, Plus, Trash2, ChevronLeft, HelpCircle } from 'lucide-react';
+import { Calendar, Clock, AlertTriangle, Plus, Trash2, ChevronLeft, HelpCircle } from 'lucide-react';
 
 const DoctorConsult = () => {
   const { id } = useParams();
@@ -69,34 +69,49 @@ const DoctorConsult = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!notes.trim()) {
-      setError("Clinical checkup notes are mandatory.");
+      setError("Doctor notes are required.");
       return;
     }
-
-    const validMeds = medications.filter(m => m.medicine_name.trim() !== '');
 
     setSubmitting(true);
     setError('');
 
     try {
+      // 1. Submit consultation notes
       await API.post(`appointments/${id}/consultation/`, {
         doctor_notes: notes,
-        follow_up_date: followUpDate || null,
-        medications: validMeds
+        follow_up_date: followUpDate || null
       });
+
+      // 2. Submit medications if any were entered
+      const validMeds = medications.filter(m => m.medicine_name.trim() !== '');
+      if (validMeds.length > 0) {
+        await API.post(`appointments/${id}/prescription/`, {
+          medications: validMeds
+        });
+      }
+
+      // 3. Complete appointment status
+      await API.post(`appointments/${id}/complete/`);
+
       navigate('/doctor/dashboard');
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to submit checkup. Please try again.");
+      console.error("Failed to finalize consultation", err);
+      setError(err.response?.data?.detail || "Failed to submit consultation records.");
       setSubmitting(false);
     }
   };
 
-  const getUrgencyColor = (urgency) => {
+  const getUrgencyBadge = (urgency) => {
     switch (urgency) {
-      case 'LOW': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
-      case 'MEDIUM': return 'bg-amber-50 text-amber-700 border-amber-100';
-      case 'HIGH': return 'bg-rose-50 text-rose-700 border-rose-100 animate-pulse';
-      default: return 'bg-slate-50 text-slate-500 border-slate-200';
+      case 'LOW':
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700 uppercase tracking-wide">Low</span>;
+      case 'MEDIUM':
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700 uppercase tracking-wide">Medium</span>;
+      case 'HIGH':
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-700 uppercase tracking-wide animate-pulse">High</span>;
+      default:
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 uppercase tracking-wide">Unavailable</span>;
     }
   };
 
@@ -108,11 +123,11 @@ const DoctorConsult = () => {
     );
   }
 
-  if (error || !appointment) {
+  if (error && !appointment) {
     return (
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl border border-slate-200 text-center shadow-sm">
-        <AlertTriangle className="h-10 w-10 text-red-500 mx-auto mb-4" />
-        <p className="text-slate-700 font-semibold">{error || "Appointment not found."}</p>
+      <div className="max-w-2xl mx-auto bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm">
+        <AlertTriangle className="h-10 w-10 text-rose-500 mx-auto mb-4" />
+        <p className="text-slate-800 dark:text-slate-200 font-semibold">{error}</p>
         <Button onClick={() => navigate('/doctor/dashboard')} variant="primary" className="mt-4">
           Back to Dashboard
         </Button>
@@ -121,48 +136,55 @@ const DoctorConsult = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      {/* Header Back navigation */}
+    <div className="space-y-6">
+      {/* Header back bar */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate('/doctor/dashboard')}
-          className="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+          className="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
         >
           <ChevronLeft className="h-4.5 w-4.5" />
-          <span>Exit Consultation Screen</span>
+          <span>Back to Dashboard</span>
         </button>
-        <span className="text-xs text-slate-400 font-mono">ID: #{appointment.id}</span>
+        <span className="text-xs text-slate-400 dark:text-slate-500 font-mono font-semibold">Appointment #{appointment?.id}</span>
       </div>
 
-      <Card className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <span className="text-[10px] font-bold text-primary-700 uppercase tracking-widest bg-primary-50 px-2 py-0.5 rounded-md border border-primary-100">
-            AyuSetu Multispeciality Clinic
-          </span>
-          <h1 className="text-lg font-bold text-slate-800 mt-1">Patient Checkup: {appointment.patient.name}</h1>
-          <p className="text-slate-500 text-xs mt-0.5">{appointment.patient.email}</p>
-        </div>
-        <div className="flex items-center space-x-2 text-xs text-slate-600 font-bold bg-slate-50 border border-slate-100 p-3 rounded-xl">
-          <Calendar className="h-4 w-4 text-slate-400" />
-          <span>{appointment.appointment_date}</span>
-          <span className="text-slate-250">|</span>
-          <Clock className="h-4 w-4 text-slate-400" />
-          <span>{appointment.start_time.substring(0, 5)} - {appointment.end_time.substring(0, 5)}</span>
-        </div>
-      </Card>
-
       {error && (
-        <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-xl text-xs font-bold text-rose-800">
+        <div className="bg-rose-50 dark:bg-rose-950/80 border-l-4 border-rose-500 p-4 rounded-xl text-xs font-bold text-rose-800 dark:text-rose-200">
           {error}
         </div>
       )}
 
+      {/* Patient Profile Card */}
+      {appointment && (
+        <Card className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center space-x-3.5">
+            <Avatar name={appointment.patient.name} />
+            <div>
+              <span className="text-[10px] font-bold text-primary-700 dark:text-primary-300 uppercase tracking-widest bg-primary-50 dark:bg-primary-950 px-2 py-0.5 rounded-md border border-primary-100 dark:border-primary-800">
+                Active Consultation
+              </span>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1">{appointment.patient.name}</h1>
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">{appointment.patient.email}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 text-xs text-slate-700 dark:text-slate-300 font-bold bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
+            <Calendar className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+            <span>{appointment.appointment_date}</span>
+            <span className="text-slate-300 dark:text-slate-600">|</span>
+            <Clock className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+            <span>{appointment.start_time.substring(0, 5)} - {appointment.end_time.substring(0, 5)}</span>
+          </div>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Symptoms & Triage Panel */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card title="Patient Reported Symptoms">
-            <p className="text-xs text-slate-600 leading-relaxed italic bg-slate-50 border border-slate-100 p-3 rounded-xl">
-              "{appointment.symptoms?.symptoms_text || 'No symptoms provided.'}"
+        {/* Pre-Visit AI Triage Insights Sidebar */}
+        <div className="space-y-6 lg:col-span-1">
+          <Card title="Raw Patient Symptoms">
+            <p className="text-xs text-slate-700 dark:text-slate-300 italic bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-xl font-medium leading-relaxed">
+              "{appointment?.symptoms?.symptoms_text || 'No symptoms submitted.'}"
             </p>
           </Card>
 
@@ -170,26 +192,24 @@ const DoctorConsult = () => {
             <Card title="AI Pre-Visit Triage">
               <div className="space-y-4">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500 font-bold">Urgency Index:</span>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getUrgencyColor(preVisit.urgency)}`}>
-                    {preVisit.urgency}
-                  </span>
+                  <span className="text-slate-500 dark:text-slate-400 font-bold">Urgency Index:</span>
+                  {getUrgencyBadge(preVisit.urgency)}
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Chief Complaint</span>
-                  <p className="text-xs font-bold text-slate-700 leading-relaxed">{preVisit.chief_complaint}</p>
+                  <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Chief Complaint</span>
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">{preVisit.chief_complaint}</p>
                 </div>
 
                 {preVisit.suggested_questions?.length > 0 && (
-                  <div className="space-y-2 pt-3 border-t border-slate-100">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1">
+                  <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-700">
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center space-x-1">
                       <HelpCircle className="h-3 w-3 text-slate-400" />
                       <span>Suggested Diagnostics Questions</span>
                     </span>
                     <ul className="space-y-2">
                       {preVisit.suggested_questions.map((q, idx) => (
-                        <li key={idx} className="text-xs text-slate-600 bg-primary-50/20 p-2.5 rounded-xl border border-primary-100">
+                        <li key={idx} className="text-xs text-slate-700 dark:text-slate-300 bg-primary-50/40 dark:bg-primary-950/40 p-2.5 rounded-xl border border-primary-100 dark:border-primary-800/60 font-medium">
                           {idx + 1}. {q}
                         </li>
                       ))}
@@ -208,7 +228,7 @@ const DoctorConsult = () => {
             <Card title="Clinical Observations & Diagnostics">
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="notes" className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Doctor Observations (Mandatory)</label>
+                  <label htmlFor="notes" className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Doctor Observations (Mandatory)</label>
                   <textarea
                     id="notes"
                     required
@@ -216,19 +236,19 @@ const DoctorConsult = () => {
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Describe checkup observations, symptoms diagnostic, and recommendations..."
-                    className="w-full p-4 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs font-medium"
+                    className="w-full p-4 theme-input border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs font-medium"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="followUp" className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Follow-up Date (Optional)</label>
+                  <label htmlFor="followUp" className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Follow-up Date (Optional)</label>
                   <input
                     type="date"
                     id="followUp"
                     value={followUpDate}
                     min={new Date().toISOString().split('T')[0]}
                     onChange={(e) => setFollowUpDate(e.target.value)}
-                    className="p-2 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="p-2.5 theme-input border rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
               </div>
@@ -255,72 +275,71 @@ const DoctorConsult = () => {
                   {medications.map((med, idx) => (
                     <div
                       key={idx}
-                      className="border border-slate-100 rounded-2xl p-4 bg-slate-50/20 grid grid-cols-1 sm:grid-cols-12 gap-3 items-end relative"
+                      className="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 bg-slate-50/50 dark:bg-slate-900/50 grid grid-cols-1 sm:grid-cols-12 gap-3 items-end relative"
                     >
                       <div className="sm:col-span-3">
-                        <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wide">Medicine Name</label>
+                        <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Medicine Name</label>
                         <input
                           type="text"
                           required
                           value={med.medicine_name}
                           onChange={(e) => handleMedChange(idx, 'medicine_name', e.target.value)}
                           placeholder="e.g. Paracetamol"
-                          className="w-full p-2 border border-slate-200 bg-white rounded-lg text-xs"
+                          className="w-full p-2 theme-input border rounded-lg text-xs font-medium"
                         />
                       </div>
                       <div className="sm:col-span-2">
-                        <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wide">Dosage</label>
+                        <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Dosage</label>
                         <input
                           type="text"
                           required
                           value={med.dosage}
                           onChange={(e) => handleMedChange(idx, 'dosage', e.target.value)}
                           placeholder="e.g. 650mg"
-                          className="w-full p-2 border border-slate-200 bg-white rounded-lg text-xs"
+                          className="w-full p-2 theme-input border rounded-lg text-xs font-medium"
                         />
                       </div>
                       <div className="sm:col-span-2">
-                        <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wide">Frequency</label>
+                        <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Frequency</label>
                         <select
                           value={med.frequency}
                           onChange={(e) => handleMedChange(idx, 'frequency', e.target.value)}
-                          className="w-full p-2 border border-slate-200 bg-white rounded-lg text-xs"
+                          className="w-full p-2 theme-input border rounded-lg text-xs font-medium"
                         >
                           <option value="Once daily">Once daily</option>
                           <option value="Twice daily">Twice daily</option>
-                          <option value="Three times daily">Three times daily</option>
-                          <option value="Four times daily">Four times daily</option>
+                          <option value="Thrice daily">Thrice daily</option>
                           <option value="As needed">As needed</option>
                         </select>
                       </div>
                       <div className="sm:col-span-2">
-                        <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wide">Duration</label>
+                        <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Duration</label>
                         <input
                           type="text"
-                          required
                           value={med.duration}
                           onChange={(e) => handleMedChange(idx, 'duration', e.target.value)}
                           placeholder="e.g. 5 days"
-                          className="w-full p-2 border border-slate-200 bg-white rounded-lg text-xs"
+                          className="w-full p-2 theme-input border rounded-lg text-xs font-medium"
                         />
                       </div>
                       <div className="sm:col-span-2">
-                        <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wide">Instructions</label>
+                        <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Instructions</label>
                         <input
                           type="text"
                           value={med.instructions}
                           onChange={(e) => handleMedChange(idx, 'instructions', e.target.value)}
-                          placeholder="After meal"
-                          className="w-full p-2 border border-slate-200 bg-white rounded-lg text-xs"
+                          placeholder="After meals"
+                          className="w-full p-2 theme-input border rounded-lg text-xs font-medium"
                         />
                       </div>
-                      <div className="sm:col-span-1 text-center">
+                      <div className="sm:col-span-1 flex justify-end">
                         <button
                           type="button"
                           onClick={() => handleRemoveMedication(idx)}
-                          className="p-2 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer"
+                          className="p-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors"
+                          title="Remove Medicine"
                         >
-                          <Trash2 className="h-4.5 w-4.5 mx-auto" />
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
@@ -329,14 +348,20 @@ const DoctorConsult = () => {
               )}
             </Card>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end space-x-3">
+              <Button
+                variant="secondary"
+                onClick={() => navigate('/doctor/dashboard')}
+              >
+                Cancel
+              </Button>
               <Button
                 type="submit"
                 variant="primary"
                 disabled={submitting}
-                className="w-full sm:w-auto"
+                className="px-6"
               >
-                {submitting ? 'Submitting Consult & Generating AI Advice...' : 'Submit Consultation Checkup'}
+                {submitting ? 'Finalizing Consultation...' : 'Complete Consultation'}
               </Button>
             </div>
           </form>
