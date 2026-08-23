@@ -65,7 +65,7 @@ function App() {
                     <Routes>
                       <Route path="dashboard" element={<DoctorDashboard />} />
                       <Route path="appointments" element={<DoctorAppointments />} />
-                      <Route path="appointments/:id" element={<DoctorAppointments />} />
+                      <Route path="appointments/:id" element={<PatientAppointmentDetail />} />
                       <Route path="appointments/:id/consult" element={<DoctorConsult />} />
                       <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>
@@ -86,6 +86,7 @@ function App() {
                       <Route path="doctors/:id" element={<AdminDoctors />} />
                       <Route path="leaves" element={<AdminLeaves />} />
                       <Route path="appointments" element={<AdminAppointments />} />
+                      <Route path="appointments/:id" element={<PatientAppointmentDetail />} />
                       <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>
                   </Layout>

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { Card, Badge, Button, Avatar } from '../../components/UI';
 import { Calendar, Clock, AlertCircle, ChevronLeft, Shield, Stethoscope, FileText, Pill } from 'lucide-react';
 
 const PatientAppointmentDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [appointment, setAppointment] = useState(null);
   const [preVisit, setPreVisit] = useState(null);
@@ -47,6 +49,16 @@ const PatientAppointmentDetail = () => {
     fetchDetails();
   }, [id]);
 
+  const handleBack = () => {
+    if (user?.role === 'ADMIN') {
+      navigate('/admin/appointments');
+    } else if (user?.role === 'DOCTOR') {
+      navigate('/doctor/dashboard');
+    } else {
+      navigate('/patient/appointments');
+    }
+  };
+
   const getUrgencyBadge = (urgency) => {
     switch (urgency) {
       case 'LOW':
@@ -73,7 +85,7 @@ const PatientAppointmentDetail = () => {
       <div className="max-w-2xl mx-auto bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm">
         <AlertCircle className="h-10 w-10 text-rose-500 mx-auto mb-4" />
         <p className="text-slate-800 dark:text-slate-200 font-semibold">{error || "Appointment not found."}</p>
-        <Button onClick={() => navigate('/patient/appointments')} variant="primary" className="mt-4">
+        <Button onClick={handleBack} variant="primary" className="mt-4">
           Back to List
         </Button>
       </div>
@@ -85,7 +97,7 @@ const PatientAppointmentDetail = () => {
       {/* Header back link */}
       <div className="flex items-center justify-between">
         <button
-          onClick={() => navigate('/patient/appointments')}
+          onClick={handleBack}
           className="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
         >
           <ChevronLeft className="h-4.5 w-4.5" />

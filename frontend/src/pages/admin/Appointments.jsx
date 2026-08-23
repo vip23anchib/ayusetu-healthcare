@@ -225,7 +225,7 @@ const AdminAppointments = () => {
                       <div className="flex items-center justify-end space-x-2">
                         {/* View detail button — always visible */}
                         <button
-                          onClick={() => navigate(`/patient/appointments/${appt.id}`)}
+                          onClick={() => navigate(`/admin/appointments/${appt.id}`)}
                           className="p-1.5 border border-primary-200 dark:border-primary-800 bg-primary-50 dark:bg-primary-950/80 hover:bg-primary-100 dark:hover:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-lg transition-all cursor-pointer"
                           title="View appointment detail"
                         >
