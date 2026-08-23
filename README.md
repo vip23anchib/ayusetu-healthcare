@@ -1,6 +1,5 @@
 # AyuSetu — AI-Powered Healthcare Appointment & Management Platform
 
-![AyuSetu Logo](frontend/public/logo.png)
 
 ## Problem Statement
 
