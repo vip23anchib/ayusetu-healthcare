@@ -108,12 +108,12 @@ html.dark .theme-table th {
   color: #1e293b;
 }
 html.dark .theme-table td {
-  border-color: #334155/60;
+  border-color: rgba(51, 65, 85, 0.6);
   color: #f1f5f9;
 }
 .theme-table tr:hover {
-  background-color: #f8fafc;
+  background-color: #f1f5f9;
 }
 html.dark .theme-table tr:hover {
-  background-color: #1e293b/60;
+  background-color: #334155;
 }
