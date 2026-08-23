@@ -97,18 +97,18 @@ const PatientAppointments = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 tracking-tight">My Appointments</h1>
-        <p className="text-slate-500 text-sm mt-1">Review upcoming consultations, prescriptions, and digital checkup advice.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">My Appointments</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">Review upcoming consultations, prescriptions, and digital checkup advice.</p>
       </div>
 
       {successMsg && (
-        <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-xl text-xs font-bold text-emerald-800">
+        <div className="bg-emerald-50 dark:bg-emerald-950/80 border-l-4 border-emerald-500 p-4 rounded-xl text-xs font-bold text-emerald-800 dark:text-emerald-200">
           {successMsg}
         </div>
       )}
 
       {error && (
-        <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-xl text-xs font-bold text-rose-800">
+        <div className="bg-rose-50 dark:bg-rose-950/80 border-l-4 border-rose-500 p-4 rounded-xl text-xs font-bold text-rose-800 dark:text-rose-200">
           {error}
         </div>
       )}
@@ -128,9 +128,9 @@ const PatientAppointments = () => {
       ) : (
         <Card className="p-0 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full text-left border-collapse text-xs theme-table">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase tracking-wider">
+                <tr className="border-b font-bold uppercase tracking-wider">
                   <th className="px-6 py-4">Specialist Doctor</th>
                   <th className="px-6 py-4">Department</th>
                   <th className="px-6 py-4">Scheduled Date & Time</th>
@@ -138,26 +138,26 @@ const PatientAppointments = () => {
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 font-medium">
                 {appointments.map((appt) => (
-                  <tr key={appt.id} className="hover:bg-slate-50/40 transition-colors">
+                  <tr key={appt.id} className="transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
                         <Avatar name={appt.doctor.user.name} specialization={appt.doctor.specialization} />
-                        <span className="font-bold text-slate-800">Dr. {appt.doctor.user.name}</span>
+                        <span className="font-bold text-slate-900 dark:text-slate-100">Dr. {appt.doctor.user.name}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-slate-50 border border-slate-100 text-slate-600 font-bold uppercase text-[9px] tracking-wider">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold uppercase text-[9px] tracking-wider">
                         {appt.doctor.specialization}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center space-x-1.5 text-slate-700 font-bold">
-                        <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                      <div className="flex items-center space-x-1.5 font-bold text-slate-800 dark:text-slate-200">
+                        <Calendar className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
                         <span>{appt.appointment_date}</span>
                       </div>
-                      <div className="flex items-center space-x-1.5 text-slate-400 mt-1">
+                      <div className="flex items-center space-x-1.5 text-slate-500 dark:text-slate-400 mt-1">
                         <Clock className="h-3.5 w-3.5" />
                         <span>{appt.start_time.substring(0, 5)} - {appt.end_time.substring(0, 5)}</span>
                       </div>
@@ -171,14 +171,14 @@ const PatientAppointments = () => {
                           <>
                             <button
                               onClick={() => setReschedulingAppt(appt)}
-                              className="inline-flex items-center space-x-1 py-2 px-3 border border-slate-200 hover:bg-slate-50 hover:text-slate-800 rounded-xl text-[10px] font-bold transition-all cursor-pointer shadow-sm bg-white"
+                              className="inline-flex items-center space-x-1 py-2 px-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-[10px] font-bold transition-all cursor-pointer shadow-sm"
                             >
                               <RefreshCw className="h-3 w-3 text-slate-400" />
                               <span>Reschedule</span>
                             </button>
                             <button
                               onClick={() => handleCancel(appt.id)}
-                              className="inline-flex items-center space-x-1 py-2 px-3 border border-rose-200 hover:bg-rose-50 text-rose-600 rounded-xl text-[10px] font-bold transition-all cursor-pointer shadow-sm bg-white"
+                              className="inline-flex items-center space-x-1 py-2 px-3 border border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-xl text-[10px] font-bold transition-all cursor-pointer shadow-sm"
                             >
                               <XCircle className="h-3 w-3" />
                               <span>Cancel</span>
@@ -188,7 +188,7 @@ const PatientAppointments = () => {
                         {(appt.status === 'CONFIRMED' || appt.status === 'COMPLETED') && (
                           <button
                             onClick={() => navigate(`/patient/appointments/${appt.id}`)}
-                            className="inline-flex items-center space-x-1 py-2 px-3 bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-xl text-[10px] font-bold transition-all cursor-pointer border border-primary-100 shadow-sm"
+                            className="inline-flex items-center space-x-1 py-2 px-3 bg-primary-50 dark:bg-primary-950/80 hover:bg-primary-100 dark:hover:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-xl text-[10px] font-bold transition-all cursor-pointer border border-primary-100 dark:border-primary-800 shadow-sm"
                           >
                             <span>View details</span>
                             <ChevronRight className="h-3.5 w-3.5" />
@@ -206,32 +206,32 @@ const PatientAppointments = () => {
 
       {/* Reschedule Modal Popover */}
       {reschedulingAppt && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 w-full max-w-md shadow-xl space-y-4 relative">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 w-full max-w-md shadow-xl space-y-4 relative text-slate-900 dark:text-slate-100">
             <button 
               onClick={() => { setReschedulingAppt(null); setNewDate(''); setNewSlot(''); }}
-              className="absolute right-4 top-4 p-1 rounded-lg text-slate-400 hover:bg-slate-50 cursor-pointer"
+              className="absolute right-4 top-4 p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer"
             >
               <X className="h-4.5 w-4.5" />
             </button>
-            <h3 className="text-lg font-bold text-slate-800 tracking-tight">Reschedule Consultation</h3>
-            <p className="text-xs text-slate-500">Rescheduling appointment with Dr. {reschedulingAppt.doctor.user.name}</p>
+            <h3 className="text-lg font-bold tracking-tight">Reschedule Consultation</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Rescheduling appointment with Dr. {reschedulingAppt.doctor.user.name}</p>
             
             <form onSubmit={handleRescheduleSubmit} className="space-y-4">
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Choose New Date</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Choose New Date</label>
                 <input
                   type="date"
                   value={newDate}
                   min={new Date().toISOString().split('T')[0]}
                   onChange={(e) => { setNewDate(e.target.value); setNewSlot(''); }}
-                  className="w-full p-2.5 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                  className="w-full p-2.5 theme-input border rounded-xl text-xs font-semibold focus:ring-2 focus:ring-primary-500 focus:outline-none"
                 />
               </div>
 
               {newDate && (
                 <div className="space-y-2">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">Available Shift Slots</label>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Available Shift Slots</label>
                   {loadingSlots ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-primary-600 mx-auto py-2"></div>
                   ) : availableSlots.length === 0 ? (
@@ -245,8 +245,8 @@ const PatientAppointments = () => {
                           onClick={() => setNewSlot(s.start_time)}
                           className={`py-2 px-2 text-xs font-bold rounded-xl border text-center transition-all cursor-pointer ${
                             newSlot === s.start_time
-                              ? 'bg-primary-700 text-white border-transparent shadow-sm'
-                              : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                              ? 'bg-primary-600 text-white border-transparent shadow-sm'
+                              : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                           }`}
                         >
                           {s.start_time.substring(0, 5)}
@@ -257,7 +257,7 @@ const PatientAppointments = () => {
                 </div>
               )}
 
-              <div className="flex justify-end space-x-2 pt-3 border-t border-slate-100">
+              <div className="flex justify-end space-x-2 pt-3 border-t border-slate-100 dark:border-slate-700">
                 <Button
                   variant="secondary"
                   onClick={() => { setReschedulingAppt(null); setNewDate(''); setNewSlot(''); }}
