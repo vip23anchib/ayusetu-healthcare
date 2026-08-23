@@ -98,20 +98,20 @@ const AdminLeaves = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Doctor Leave Configurations</h1>
-        <p className="text-slate-500 text-sm mt-1">Schedule leaves for clinical specialists, cancel conflicting bookings, and notify patients.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Doctor Leave Configurations</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">Schedule leaves for clinical specialists, cancel conflicting bookings, and notify patients.</p>
       </div>
 
       {success && (
-        <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-xl text-xs font-bold text-emerald-800 flex items-center space-x-2">
-          <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />
+        <div className="bg-emerald-50 dark:bg-emerald-950/80 border-l-4 border-emerald-500 p-4 rounded-xl text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center space-x-2">
+          <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span>{success}</span>
         </div>
       )}
 
       {error && (
-        <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-xl text-xs font-bold text-rose-800 flex items-center space-x-2">
-          <ShieldAlert className="h-5 w-5 text-rose-600 shrink-0" />
+        <div className="bg-rose-50 dark:bg-rose-950/80 border-l-4 border-rose-500 p-4 rounded-xl text-xs font-bold text-rose-800 dark:text-rose-200 flex items-center space-x-2">
+          <ShieldAlert className="h-5 w-5 text-rose-600 dark:text-rose-400 shrink-0" />
           <span>{error}</span>
         </div>
       )}
@@ -122,11 +122,11 @@ const AdminLeaves = () => {
           <Card title="Schedule Doctor Leave" subtitle="Enforcing leave blocks slots and releases pending bookings.">
             <form onSubmit={handleAddLeave} className="space-y-4">
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Select Doctor</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Select Doctor</label>
                 <select
                   value={selectedDoctorId}
                   onChange={(e) => setSelectedDoctorId(e.target.value)}
-                  className="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800 font-bold bg-white"
+                  className="w-full p-2.5 theme-input border rounded-xl text-xs font-bold focus:ring-2 focus:ring-primary-500 focus:outline-none"
                 >
                   {doctors.map((d) => (
                     <option key={d.id} value={d.id}>
@@ -137,25 +137,25 @@ const AdminLeaves = () => {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Leave Date</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Leave Date</label>
                 <input
                   type="date"
                   required
                   value={leaveDate}
                   min={new Date().toISOString().split('T')[0]}
                   onChange={(e) => setLeaveDate(e.target.value)}
-                  className="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800 font-semibold"
+                  className="w-full p-2.5 theme-input border rounded-xl text-xs font-semibold focus:ring-2 focus:ring-primary-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Reason / Note</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Reason / Note</label>
                 <input
                   type="text"
                   placeholder="e.g. Medical Conference, Personal off..."
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800 font-semibold"
+                  className="w-full p-2.5 theme-input border rounded-xl text-xs font-semibold focus:ring-2 focus:ring-primary-500 focus:outline-none"
                 />
               </div>
 
@@ -179,17 +179,17 @@ const AdminLeaves = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
               </div>
             ) : allLeaves.length === 0 ? (
-              <p className="text-xs text-slate-400 py-6 text-center">No scheduled practitioner leaves recorded.</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 py-6 text-center font-medium">No scheduled practitioner leaves recorded.</p>
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-100 dark:divide-slate-700/60">
                 {allLeaves.map((leave, idx) => (
-                  <div key={idx} className="py-4 flex justify-between items-center hover:bg-slate-50/30 px-3 rounded-2xl transition-all">
+                  <div key={idx} className="py-4 flex justify-between items-center hover:bg-slate-50/50 dark:hover:bg-slate-700/30 px-3 rounded-2xl transition-all">
                     <div className="flex items-center space-x-3.5">
                       <Avatar name={leave.doctor.user.name} specialization={leave.doctor.specialization} />
                       <div className="space-y-0.5">
-                        <h4 className="font-bold text-slate-800 text-sm">Dr. {leave.doctor.user.name}</h4>
-                        <div className="flex items-center space-x-2 text-xs text-slate-400 font-semibold">
-                          <span className="text-slate-600 font-bold">{leave.leave_date}</span>
+                        <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Dr. {leave.doctor.user.name}</h4>
+                        <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                          <span className="text-slate-800 dark:text-slate-200 font-bold">{leave.leave_date}</span>
                           {leave.reason && (
                             <>
                               <span>•</span>
@@ -202,7 +202,7 @@ const AdminLeaves = () => {
 
                     <button
                       onClick={() => handleDeleteLeave(leave.doctor.id, leave.leave_date, leave.doctor.user.name)}
-                      className="p-2 border border-rose-100 hover:bg-rose-50 text-rose-500 hover:text-rose-600 rounded-xl transition-all cursor-pointer"
+                      className="p-2 border border-rose-200 dark:border-rose-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-xl transition-all cursor-pointer"
                     >
                       <Trash2 className="h-4.5 w-4.5" />
                     </button>

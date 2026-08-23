@@ -82,45 +82,45 @@ const AdminAppointments = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Global Appointments Control</h1>
-        <p className="text-slate-500 text-sm mt-1">Audit active slot reservations, verify consult logs, and override schedules.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Global Appointments Control</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">Audit active slot reservations, verify consult logs, and override schedules.</p>
       </div>
 
       {success && (
-        <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-xl text-xs font-bold text-emerald-800 flex items-center space-x-2">
-          <CheckCircle className="h-4 w-4 text-emerald-600" />
+        <div className="bg-emerald-50 dark:bg-emerald-950/80 border-l-4 border-emerald-500 p-4 rounded-xl text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center space-x-2">
+          <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span>{success}</span>
         </div>
       )}
 
       {error && (
-        <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-xl text-xs font-bold text-rose-800">
+        <div className="bg-rose-50 dark:bg-rose-950/80 border-l-4 border-rose-500 p-4 rounded-xl text-xs font-bold text-rose-800 dark:text-rose-200">
           {error}
         </div>
       )}
 
       {/* Enhanced Search & Filter Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 elevated-card">
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
           {/* Text Search */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
             <input
               type="text"
               placeholder="Search patient, doctor, or specialization..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800"
+              className="w-full pl-9 pr-3 py-2 text-xs font-semibold theme-input border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
 
           {/* Status filter */}
           <div className="flex items-center space-x-2">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide shrink-0">Status:</span>
+            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide shrink-0">Status:</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="px-3 py-2 theme-input border rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="ALL">All</option>
               <option value="CONFIRMED">Confirmed</option>
@@ -133,12 +133,12 @@ const AdminAppointments = () => {
 
           {/* Date filter */}
           <div className="flex items-center space-x-2">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide shrink-0">Date:</span>
+            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide shrink-0">Date:</span>
             <input
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="px-3 py-2 theme-input border rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
 
@@ -146,7 +146,7 @@ const AdminAppointments = () => {
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="flex items-center space-x-1 text-xs font-bold text-rose-500 hover:text-rose-600 px-3 py-2 border border-rose-100 rounded-xl hover:bg-rose-50 transition-all"
+              className="flex items-center space-x-1 text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 px-3 py-2 border border-rose-200 dark:border-rose-800 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-all cursor-pointer"
             >
               <X className="h-3.5 w-3.5" />
               <span>Clear</span>
@@ -155,7 +155,7 @@ const AdminAppointments = () => {
         </div>
 
         {hasActiveFilters && (
-          <p className="text-[10px] text-slate-400 font-bold mt-2 pl-1">
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-2 pl-1">
             Showing {filtered.length} of {appointments.length} appointments
           </p>
         )}
@@ -166,26 +166,26 @@ const AdminAppointments = () => {
           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-600"></div>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white text-center py-14 rounded-2xl border border-slate-200/80 shadow-sm">
-          <ClipboardList className="h-10 w-10 text-slate-200 mx-auto mb-3" />
-          <h4 className="font-bold text-slate-500 text-sm">No Appointments Found</h4>
-          <p className="text-slate-400 text-xs mt-1 max-w-xs mx-auto">
+        <div className="bg-white dark:bg-slate-800 text-center py-14 rounded-2xl border border-slate-200 dark:border-slate-700 elevated-card">
+          <ClipboardList className="h-10 w-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+          <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">No Appointments Found</h4>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-xs mx-auto">
             {hasActiveFilters
               ? 'No appointments match your current filters. Try adjusting the search or status.'
               : 'No appointments have been booked yet in the system.'}
           </p>
           {hasActiveFilters && (
-            <button onClick={clearFilters} className="mt-4 text-xs font-bold text-primary-600 hover:text-primary-700">
+            <button onClick={clearFilters} className="mt-4 text-xs font-bold text-primary-600 dark:text-primary-400 hover:text-primary-700 cursor-pointer">
               Clear all filters
             </button>
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden elevated-card">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full text-left border-collapse text-xs theme-table">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase tracking-wider">
+                <tr className="border-b font-bold uppercase tracking-wider">
                   <th className="px-4 py-3.5">ID</th>
                   <th className="px-4 py-3.5">Patient</th>
                   <th className="px-4 py-3.5">Doctor Specialist</th>
@@ -194,27 +194,27 @@ const AdminAppointments = () => {
                   <th className="px-4 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 font-medium">
                 {filtered.map((appt) => (
-                  <tr key={appt.id} className="hover:bg-slate-50/30 transition-colors">
-                    <td className="px-4 py-3 text-slate-400 font-bold">#{appt.id}</td>
-                    <td className="px-4 py-3 font-bold text-slate-800">{appt.patient.name}</td>
+                  <tr key={appt.id} className="transition-colors">
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 font-bold">#{appt.id}</td>
+                    <td className="px-4 py-3 font-bold text-slate-900 dark:text-slate-100">{appt.patient.name}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center space-x-2">
                         <Avatar name={appt.doctor.user.name} specialization={appt.doctor.specialization} />
                         <div>
-                          <span className="font-bold text-slate-700">Dr. {appt.doctor.user.name}</span>
-                          <span className="block text-[10px] text-slate-400">{appt.doctor.specialization}</span>
+                          <span className="font-bold text-slate-800 dark:text-slate-200">Dr. {appt.doctor.user.name}</span>
+                          <span className="block text-[10px] text-slate-500 dark:text-slate-400">{appt.doctor.specialization}</span>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center space-x-1 font-bold text-slate-700">
-                        <Calendar className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                      <div className="flex items-center space-x-1 font-bold text-slate-800 dark:text-slate-200">
+                        <Calendar className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
                         <span>{appt.appointment_date}</span>
                       </div>
-                      <div className="flex items-center space-x-1 text-[10px] text-slate-400 mt-0.5">
-                        <Clock className="h-3 w-3 text-slate-300 shrink-0" />
+                      <div className="flex items-center space-x-1 text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        <Clock className="h-3 w-3 text-slate-400 dark:text-slate-500 shrink-0" />
                         <span>{appt.start_time.substring(0, 5)} – {appt.end_time.substring(0, 5)}</span>
                       </div>
                     </td>
@@ -226,7 +226,7 @@ const AdminAppointments = () => {
                         {/* View detail button — always visible */}
                         <button
                           onClick={() => navigate(`/patient/appointments/${appt.id}`)}
-                          className="p-1.5 border border-primary-100 hover:bg-primary-50 text-primary-600 rounded-lg transition-all"
+                          className="p-1.5 border border-primary-200 dark:border-primary-800 bg-primary-50 dark:bg-primary-950/80 hover:bg-primary-100 dark:hover:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-lg transition-all cursor-pointer"
                           title="View appointment detail"
                         >
                           <Eye className="h-4 w-4" />
@@ -235,7 +235,7 @@ const AdminAppointments = () => {
                         {appt.status === 'CONFIRMED' && (
                           <button
                             onClick={() => handleAdminCancel(appt.id)}
-                            className="p-1.5 border border-rose-100 hover:bg-rose-50 text-rose-600 rounded-lg transition-all"
+                            className="p-1.5 border border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-lg transition-all cursor-pointer"
                             title="Cancel appointment"
                           >
                             <Trash2 className="h-4 w-4" />

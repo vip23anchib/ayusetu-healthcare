@@ -58,17 +58,18 @@ const AdminDoctors = () => {
       setSlotDuration('30');
       fetchDoctorsList();
     } catch (err) {
-      setError(err.response?.data?.detail || "Registration failed. Check if email is already taken.");
+      console.error("Failed to create doctor", err);
+      setError(err.response?.data?.email?.[0] || err.response?.data?.detail || "Registration failed.");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDeleteDoctor = async (id, doctorName) => {
-    if (!window.confirm(`Permanently remove profile for Dr. ${doctorName}?`)) return;
+    if (!window.confirm(`Are you sure you want to deactivate Dr. ${doctorName}?`)) return;
     try {
       await API.delete(`admin/doctors/${id}/`);
-      setSuccess(`Dr. ${doctorName} deleted successfully.`);
+      setSuccess(`Dr. ${doctorName} profile deleted.`);
       fetchDoctorsList();
     } catch (err) {
       alert("Failed to delete doctor profile.");
@@ -78,89 +79,82 @@ const AdminDoctors = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Healthcare Specialists Directory</h1>
-        <p className="text-slate-500 text-sm mt-1">Register new clinical profiles, configure slots duration, and audit weekly schedules.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Specialist Medical Practitioners</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">Add new doctors, configure slot durations, and review clinical availability.</p>
       </div>
 
       {success && (
-        <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-xl text-xs font-bold text-emerald-800 flex items-center space-x-2">
-          <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />
+        <div className="bg-emerald-50 dark:bg-emerald-950/80 border-l-4 border-emerald-500 p-4 rounded-xl text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center space-x-2">
+          <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span>{success}</span>
         </div>
       )}
 
       {error && (
-        <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-xl text-xs font-bold text-rose-800 flex items-center space-x-2">
-          <ShieldAlert className="h-5 w-5 text-rose-600 shrink-0" />
-          <span>{error}</span>
+        <div className="bg-rose-50 dark:bg-rose-950/80 border-l-4 border-rose-500 p-4 rounded-xl text-xs font-bold text-rose-800 dark:text-rose-200">
+          {error}
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Register Specialist Form */}
+        {/* Register Doctor Form */}
         <div className="lg:col-span-1">
-          <Card title="Register Specialist Doctor" subtitle="Enrolls doctor and generates Mon-Fri hours automatically.">
+          <Card title="Add New Doctor" subtitle="Provision login credentials and specialization.">
             <form onSubmit={handleRegisterDoctor} className="space-y-4">
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Full Name</label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Dr. Sana Sheikh"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800 font-semibold"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                  <input
-                    type="email"
-                    required
-                    placeholder="e.g. sana.sheikh@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800 font-semibold"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Account Password</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Full Name</label>
                 <input
-                  type="password"
+                  type="text"
                   required
-                  placeholder="Temporary login password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800 font-semibold"
+                  placeholder="e.g. Ananya Reddy"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full p-2.5 theme-input border rounded-xl text-xs font-semibold focus:ring-2 focus:ring-primary-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Specialization Specialty</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="dr.ananya.reddy@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full p-2.5 theme-input border rounded-xl text-xs font-semibold focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-2.5 theme-input border rounded-xl text-xs font-semibold focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Specialization</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Cardiology, Pediatrics, General Physician"
                   value={specialization}
                   onChange={(e) => setSpecialization(e.target.value)}
-                  className="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-800 font-semibold"
+                  className="w-full p-2.5 theme-input border rounded-xl text-xs font-semibold focus:ring-2 focus:ring-primary-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Appointment Slot Duration</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Appointment Slot Duration</label>
                 <select
                   value={slotDuration}
                   onChange={(e) => setSlotDuration(e.target.value)}
-                  className="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-700 font-bold bg-white"
+                  className="w-full p-2.5 theme-input border rounded-xl text-xs font-bold focus:ring-2 focus:ring-primary-500 focus:outline-none"
                 >
                   <option value="15">15 minutes</option>
                   <option value="30">30 minutes</option>
@@ -189,23 +183,23 @@ const AdminDoctors = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
               </div>
             ) : doctors.length === 0 ? (
-              <p className="text-xs text-slate-400 py-6 text-center">No practitioner profiles registered yet.</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 py-6 text-center font-medium">No practitioner profiles registered yet.</p>
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-100 dark:divide-slate-700/60">
                 {doctors.map((doc) => (
-                  <div key={doc.id} className="py-4 flex justify-between items-center hover:bg-slate-50/30 px-3 rounded-2xl transition-all">
+                  <div key={doc.id} className="py-4 flex justify-between items-center hover:bg-slate-50/50 dark:hover:bg-slate-700/30 px-3 rounded-2xl transition-all">
                     <div className="flex items-center space-x-3.5">
                       <Avatar name={doc.user.name} specialization={doc.specialization} />
                       <div className="space-y-0.5">
-                        <h4 className="font-bold text-slate-800 text-sm">Dr. {doc.user.name}</h4>
-                        <p className="text-slate-400 text-xs font-semibold">
-                          Contact: <span className="text-slate-600 font-bold">{doc.user.email}</span>
+                        <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Dr. {doc.user.name}</h4>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold">
+                          Contact: <span className="text-slate-800 dark:text-slate-200 font-bold">{doc.user.email}</span>
                         </p>
                         <div className="flex space-x-2 pt-1">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-50 text-slate-500 border border-slate-100 uppercase tracking-wide">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 uppercase tracking-wide">
                             {doc.specialization}
                           </span>
-                          <span className="inline-flex items-center space-x-1 text-[9px] font-bold text-primary-700 bg-primary-50 px-2 py-0.5 rounded-full border border-primary-100">
+                          <span className="inline-flex items-center space-x-1 text-[9px] font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950 px-2 py-0.5 rounded-full border border-primary-100 dark:border-primary-800">
                             <Clock className="h-3 w-3 shrink-0" />
                             <span>{doc.slot_duration}m slot</span>
                           </span>
@@ -215,7 +209,7 @@ const AdminDoctors = () => {
 
                     <button
                       onClick={() => handleDeleteDoctor(doc.id, doc.user.name)}
-                      className="p-2 border border-rose-100 hover:bg-rose-50 text-rose-500 hover:text-rose-600 rounded-xl transition-all cursor-pointer"
+                      className="p-2 border border-rose-200 dark:border-rose-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-xl transition-all cursor-pointer"
                     >
                       <Trash2 className="h-4.5 w-4.5" />
                     </button>
