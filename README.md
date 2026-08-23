@@ -22,8 +22,8 @@
 
 | Service | URL |
 | :--- | :--- |
-| **Frontend (Vercel)** | *https://ayusetu.vercel.app* |
-| **Backend API (Render)** | *https://ayusetu-api.onrender.com* |
+| **Frontend (Vercel)** | * https://ayusetu-healthcare.vercel.app* |
+| **Backend API (Render)** | *https://ayusetu-backend.onrender.com* |
 
 > Use the [Demo Credentials](#-demo-credentials) below to log in. The backend on Render's free tier may take ~30 seconds to cold-start on the first request.
 
