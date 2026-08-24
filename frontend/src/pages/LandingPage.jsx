@@ -296,26 +296,6 @@ const LandingPage = () => {
           {/* ── LEFT COLUMN (60%) ── */}
           <div className="flex-none w-full lg:w-[60%] flex flex-col items-start">
 
-            {/* Logo + wordmark — smaller so headline dominates */}
-            <div className="flex items-center gap-2.5 mb-6">
-              <img src="/logo.png" alt="AyuSetu Logo" className="h-9 w-9 object-contain" />
-              <span className="brand-wordmark text-2xl leading-none">
-                <span className="brand-ayu">Ayu</span>
-                <span className="brand-setu">Setu</span>
-              </span>
-              {/* Pill sub-badge */}
-              <span
-                className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ml-1"
-                style={{
-                  background: 'rgba(13,148,136,0.10)',
-                  color: '#0a6e64',
-                  border: '1px solid rgba(13,148,136,0.20)',
-                }}
-              >
-                Multispeciality
-              </span>
-            </div>
-
             {/* Main headline — clear visual apex */}
             <h1
               className="text-5xl sm:text-6xl font-extrabold leading-[1.1] tracking-tight text-slate-800 dark:text-slate-100 mb-5"
@@ -441,9 +421,9 @@ const LandingPage = () => {
                 </div>
               </div>
 
-              {/* Micro-card — Appointment confirmed, offset bottom-left */}
+              {/* Micro-card — Appointment confirmed, top-right so it never overlaps the stats row */}
               <div
-                className="absolute -bottom-5 -left-5 bg-white dark:bg-slate-800 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5"
+                className="absolute -top-5 -right-5 bg-white dark:bg-slate-800 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5"
                 style={{
                   boxShadow: '0 8px 24px -4px rgba(30,58,95,0.16)',
                   border: '1px solid rgba(30,58,95,0.09)',
