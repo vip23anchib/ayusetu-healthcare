@@ -12,9 +12,8 @@
 | [Database Schema](docs/database-schema.md) | ER diagram, all tables, constraints, and design decisions |
 | [System Design](docs/system-design.md) | Double-booking prevention, slot holds, leave conflicts, notification retry |
 | [Architecture Overview](docs/architecture.md) | System diagram, service layer isolation, layer-by-layer walkthrough |
-| [LLM Prompts](docs/llm-prompts.md) | Verbatim OpenAI prompts for pre-visit triage and post-visit summary |
+| [LLM Prompts](docs/llm-prompts.md) | Verbatim Gemini prompts for pre-visit triage and post-visit summary |
 | [Google Calendar Setup](docs/google-calendar-setup.md) | Step-by-step OAuth 2.0 credential setup guide |
-
 
 ---
 
@@ -22,7 +21,7 @@
 
 | Service | URL |
 | :--- | :--- |
-| **Frontend (Vercel)** | * https://ayusetu-healthcare.vercel.app* |
+| **Frontend (Vercel)** | *https://ayusetu-healthcare.vercel.app* |
 | **Backend API (Render)** | *https://ayusetu-backend.onrender.com* |
 
 > Use the [Demo Credentials](#-demo-credentials) below to log in. The backend on Render's free tier may take ~30 seconds to cold-start on the first request.
@@ -85,13 +84,13 @@ Scheduling clinic appointments in India is still largely phone-based, leading to
 
 ## 🏗️ Architecture
 
-The system follows a strict **Views → Service Layer → External APIs** pattern. Views handle HTTP/auth only; all business logic lives in service modules; all external API calls (OpenAI, SendGrid, Google Calendar) run asynchronously via Django-Q background tasks, never in the request/response cycle.
+The system follows a strict **Views → Service Layer → External APIs** pattern. Views handle HTTP/auth only; all business logic lives in service modules; all external API calls (Gemini, SendGrid, Google Calendar) run asynchronously via Django-Q background tasks, never in the request/response cycle.
 
 ```
 React SPA (Vercel) → REST API (Bearer JWT) → Django/DRF Views
     → Service Layer (transaction.atomic + select_for_update)
         → PostgreSQL (Neon)
-        → Django-Q Task Queue → ai_service → OpenAI
+        → Django-Q Task Queue → ai_service → Gemini API
                               → notification_service → SendGrid
                               → calendar_service → Google Calendar API
 ```
@@ -110,7 +109,7 @@ ayusetu-healthcare/
 │   ├── appointments/          # Booking: hold → confirm → complete/cancel
 │   ├── consultations/         # Notes, prescriptions, AI summaries
 │   ├── notifications/         # Email queue with retry state machine
-│   ├── ai/                    # OpenAI wrapper (pre-visit + post-visit)
+│   ├── ai/                    # Gemini wrapper (pre-visit + post-visit)
 │   ├── calendar_integration/  # Google Calendar OAuth + event sync
 │   ├── config/                # Django settings, URL config, WSGI
 │   ├── requirements.txt
