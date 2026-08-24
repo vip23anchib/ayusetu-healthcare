@@ -13,6 +13,8 @@ import {
   Moon,
   ExternalLink,
   ChevronRight,
+  Stethoscope,
+  BadgeCheck,
 } from 'lucide-react';
 
 /* ─── Two-tone wordmark (mirrors Layout.jsx exactly) ─── */
@@ -158,6 +160,13 @@ const LandingPage = () => {
                 : <Moon className="h-4 w-4 text-slate-600" />}
             </button>
             <Link
+              id="nav-register-btn"
+              to="/register"
+              className="text-xs font-bold px-4 py-2.5 rounded-xl border border-primary-600 dark:border-primary-400 text-primary-700 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-950/40 transition-all hover:-translate-y-0.5"
+            >
+              Register
+            </Link>
+            <Link
               id="nav-login-btn"
               to="/login"
               className="text-xs font-bold px-4 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white border border-transparent shadow-sm transition-all hover:-translate-y-0.5"
@@ -171,54 +180,226 @@ const LandingPage = () => {
       {/* ══════════════════════════════════════════════════════════ */}
       {/* HERO                                                        */}
       {/* ══════════════════════════════════════════════════════════ */}
-      <section id="hero" className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-24 text-center">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <img
-            src="/logo.png"
-            alt="AyuSetu Logo"
-            className="h-20 w-20 object-contain"
-          />
-        </div>
+      <section
+        id="hero"
+        className="relative overflow-hidden"
+        style={{ minHeight: '88vh' }}
+      >
+        {/* ── Soft blob backgrounds ── */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            top: '-120px',
+            left: '-160px',
+            width: '600px',
+            height: '600px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, #0f9b8e22 0%, transparent 70%)',
+            filter: 'blur(60px)',
+            pointerEvents: 'none',
+          }}
+        />
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            bottom: '-80px',
+            right: '-100px',
+            width: '500px',
+            height: '500px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, #1e3a5f1a 0%, transparent 70%)',
+            filter: 'blur(80px)',
+            pointerEvents: 'none',
+          }}
+        />
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            top: '40%',
+            left: '55%',
+            width: '340px',
+            height: '340px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, #0f9b8e14 0%, transparent 70%)',
+            filter: 'blur(50px)',
+            pointerEvents: 'none',
+          }}
+        />
 
-        {/* Wordmark */}
-        <h1 className="brand-wordmark text-6xl sm:text-7xl leading-none mb-4">
-          <span className="brand-ayu">Ayu</span>
-          <span className="brand-setu">Setu</span>
-        </h1>
+        {/* ── Two-column inner ── */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-24 flex flex-col lg:flex-row items-center gap-12 lg:gap-8 relative z-10">
 
-        {/* Tagline */}
-        <p className="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight mb-4">
-          Bridge of Health
-        </p>
+          {/* ── LEFT COLUMN (60%) ── */}
+          <div className="flex-none w-full lg:w-[60%] flex flex-col items-start">
 
-        {/* Subtext */}
-        <p className="max-w-2xl mx-auto text-base sm:text-lg text-slate-600 dark:text-slate-400 font-medium leading-relaxed mb-10">
-          A clinical appointment system with AI-powered symptom triage, doctor
-          consultation management, and automated patient follow-up — built for
-          multispeciality clinics.
-        </p>
+            {/* Logo + wordmark badge */}
+            <div className="flex items-center gap-3 mb-8">
+              <img src="/logo.png" alt="AyuSetu Logo" className="h-12 w-12 object-contain" />
+              <span className="brand-wordmark text-3xl leading-none">
+                <span className="brand-ayu">Ayu</span>
+                <span className="brand-setu">Setu</span>
+              </span>
+            </div>
 
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link
-            id="hero-login-btn"
-            to="/login"
-            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold border border-transparent shadow-sm transition-all hover:-translate-y-0.5"
-          >
-            Login
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link
-            id="hero-register-btn"
-            to="/register"
-            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-primary-700 dark:text-primary-300 text-sm font-bold border border-primary-200 dark:border-primary-700 shadow-sm transition-all hover:-translate-y-0.5"
-          >
-            Register
-            <ChevronRight className="h-4 w-4" />
-          </Link>
+            {/* Main headline */}
+            <h1
+              className="text-5xl sm:text-6xl font-extrabold leading-tight tracking-tight text-slate-800 dark:text-slate-100 mb-5"
+              style={{ fontFamily: "'Baloo 2', 'Inter', sans-serif" }}
+            >
+              Smarter Care,{' '}<br />
+              <span style={{ color: '#0f9b8e', textDecoration: 'underline', textDecorationColor: '#0f9b8e55', textUnderlineOffset: '6px' }}>
+                Seamlessly
+              </span>{' '}Connected
+            </h1>
+
+            {/* Benefit-specific subtext */}
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 font-medium leading-relaxed mb-2">
+              AI symptom triage surfaces what matters before your doctor even walks in.
+            </p>
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 font-medium leading-relaxed mb-8">
+              Book consultations instantly, then let automated follow-ups handle the rest.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                id="hero-login-btn"
+                to="/login"
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold border border-transparent shadow-sm transition-all hover:-translate-y-0.5"
+              >
+                Login
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                id="hero-register-btn"
+                to="/register"
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-primary-700 dark:text-primary-300 text-sm font-bold border border-primary-300 dark:border-primary-700 shadow-sm transition-all hover:-translate-y-0.5"
+              >
+                Register
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+
+          {/* ── RIGHT COLUMN (40%) ── */}
+          <div className="flex-none w-full lg:w-[40%] flex items-center justify-center lg:justify-end">
+            {/* Floating triage card */}
+            <div
+              className="relative w-full max-w-sm"
+              style={{ perspective: '800px' }}
+            >
+              {/* Subtle decorative ring behind card */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  inset: '-20px',
+                  borderRadius: '28px',
+                  background: 'linear-gradient(135deg, #0f9b8e18, #1e3a5f12)',
+                  filter: 'blur(12px)',
+                  zIndex: 0,
+                }}
+              />
+
+              {/* Main floating card */}
+              <div
+                className="relative bg-white dark:bg-slate-800 rounded-2xl p-6"
+                style={{
+                  boxShadow: '0 24px 60px -8px rgba(15,155,142,0.18), 0 8px 24px -4px rgba(30,58,95,0.10)',
+                  border: '1px solid rgba(15,155,142,0.12)',
+                  zIndex: 1,
+                  animation: 'heroCardFloat 5s ease-in-out infinite',
+                }}
+              >
+                {/* Card icon */}
+                <div
+                  className="inline-flex items-center justify-center mb-4 rounded-xl"
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'linear-gradient(135deg, #0f9b8e, #0a6e64)',
+                    boxShadow: '0 4px 12px rgba(15,155,142,0.35)',
+                  }}
+                >
+                  <Brain className="h-6 w-6 text-white" />
+                </div>
+
+                {/* Card heading */}
+                <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 mb-2 tracking-tight">
+                  AI-Powered Triage
+                </h2>
+
+                {/* Card body text */}
+                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                  Gemini AI analyses your symptoms before the visit and delivers an urgency-ranked summary directly to your doctor.
+                </p>
+
+                {/* Verified badge */}
+                <span
+                  className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
+                  style={{
+                    background: 'linear-gradient(90deg, #e6f7f6, #c0eceb)',
+                    color: '#0a6e64',
+                    border: '1px solid #87d8d680',
+                  }}
+                >
+                  <BadgeCheck className="h-3.5 w-3.5" />
+                  ✓ Verified Clinic Network
+                </span>
+
+                {/* Mini stat row */}
+                <div className="flex gap-4 mt-5 pt-4 border-t border-slate-100 dark:border-slate-700">
+                  <div className="text-center">
+                    <p className="text-xl font-extrabold" style={{ color: '#0f9b8e' }}>98%</p>
+                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Accuracy</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xl font-extrabold text-slate-800 dark:text-slate-100">&lt;2 min</p>
+                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Triage Time</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xl font-extrabold text-slate-800 dark:text-slate-100">3 roles</p>
+                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Portals</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Secondary micro-card — Appointment confirmed */}
+              <div
+                className="absolute -bottom-6 -left-6 bg-white dark:bg-slate-800 rounded-xl px-4 py-3 flex items-center gap-3"
+                style={{
+                  boxShadow: '0 8px 24px -4px rgba(30,58,95,0.14)',
+                  border: '1px solid rgba(30,58,95,0.08)',
+                  animation: 'heroCardFloat 5s ease-in-out 2.5s infinite',
+                }}
+              >
+                <div
+                  className="flex-none rounded-lg p-1.5"
+                  style={{ background: '#e6f7f6' }}
+                >
+                  <Stethoscope className="h-4 w-4" style={{ color: '#0f9b8e' }} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-100">Appointment Confirmed</p>
+                  <p className="text-[10px] text-slate-400">Dr. Ananya Reddy · Today 10:30 AM</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
+
+      {/* Keyframe for card float animation */}
+      <style>{`
+        @keyframes heroCardFloat {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+      `}</style>
 
       {/* ══════════════════════════════════════════════════════════ */}
       {/* FEATURE HIGHLIGHTS                                          */}
