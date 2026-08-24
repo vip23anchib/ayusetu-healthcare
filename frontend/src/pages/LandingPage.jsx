@@ -183,87 +183,165 @@ const LandingPage = () => {
       <section
         id="hero"
         className="relative overflow-hidden"
-        style={{ minHeight: '88vh' }}
+        style={{ minHeight: '72vh' }}
       >
-        {/* ── Soft blob backgrounds ── */}
+        {/* ── Blob 1: teal, top-left, strong ── */}
         <div
           aria-hidden="true"
           style={{
             position: 'absolute',
-            top: '-120px',
-            left: '-160px',
-            width: '600px',
-            height: '600px',
+            top: '-80px',
+            left: '-120px',
+            width: '640px',
+            height: '640px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, #0f9b8e22 0%, transparent 70%)',
-            filter: 'blur(60px)',
+            background: 'radial-gradient(circle, rgba(13,148,136,0.16) 0%, transparent 68%)',
+            filter: 'blur(48px)',
             pointerEvents: 'none',
           }}
         />
+        {/* ── Blob 2: navy, bottom-right ── */}
         <div
           aria-hidden="true"
           style={{
             position: 'absolute',
-            bottom: '-80px',
-            right: '-100px',
-            width: '500px',
-            height: '500px',
+            bottom: '-60px',
+            right: '-80px',
+            width: '520px',
+            height: '520px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, #1e3a5f1a 0%, transparent 70%)',
-            filter: 'blur(80px)',
+            background: 'radial-gradient(circle, rgba(30,58,95,0.13) 0%, transparent 68%)',
+            filter: 'blur(64px)',
             pointerEvents: 'none',
           }}
         />
+        {/* ── Blob 3: teal, centre-right mid ── */}
         <div
           aria-hidden="true"
           style={{
             position: 'absolute',
-            top: '40%',
-            left: '55%',
-            width: '340px',
-            height: '340px',
+            top: '35%',
+            left: '52%',
+            width: '360px',
+            height: '360px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, #0f9b8e14 0%, transparent 70%)',
-            filter: 'blur(50px)',
+            background: 'radial-gradient(circle, rgba(13,148,136,0.10) 0%, transparent 70%)',
+            filter: 'blur(44px)',
             pointerEvents: 'none',
           }}
         />
 
+        {/* ── Medical line-art SVG motifs (very low opacity) ── */}
+        <svg
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{
+            position: 'absolute',
+            top: '8%',
+            right: '6%',
+            width: '220px',
+            height: '220px',
+            opacity: 0.055,
+            color: '#0d9488',
+            pointerEvents: 'none',
+            overflow: 'visible',
+          }}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          {/* Stethoscope outline */}
+          <circle cx="110" cy="110" r="105" strokeDasharray="6 5" strokeWidth="1" />
+          <path d="M60 60 Q60 90 80 100 Q110 115 110 145 Q110 175 80 180" />
+          <circle cx="80" cy="185" r="12" />
+          <path d="M60 60 Q60 90 80 100" />
+          <path d="M70 55 Q65 40 80 36 Q95 32 95 50" />
+          <circle cx="68" cy="57" r="5" />
+          <circle cx="96" cy="47" r="5" />
+          {/* Heartbeat line */}
+          <path d="M10 155 L35 155 L48 128 L62 182 L75 140 L88 155 L210 155" strokeWidth="1.8" />
+        </svg>
+
+        <svg
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{
+            position: 'absolute',
+            bottom: '10%',
+            left: '2%',
+            width: '160px',
+            height: '160px',
+            opacity: 0.05,
+            color: '#1e3a5f',
+            pointerEvents: 'none',
+          }}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          {/* Medical cross */}
+          <rect x="55" y="20" width="50" height="120" rx="8" />
+          <rect x="20" y="55" width="120" height="50" rx="8" />
+          {/* Small pulse around cross */}
+          <circle cx="80" cy="80" r="74" strokeDasharray="5 6" strokeWidth="1" opacity="0.6" />
+        </svg>
+
         {/* ── Two-column inner ── */}
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-24 flex flex-col lg:flex-row items-center gap-12 lg:gap-8 relative z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-16 flex flex-col lg:flex-row items-center gap-10 lg:gap-8 relative z-10">
 
           {/* ── LEFT COLUMN (60%) ── */}
           <div className="flex-none w-full lg:w-[60%] flex flex-col items-start">
 
-            {/* Logo + wordmark badge */}
-            <div className="flex items-center gap-3 mb-8">
-              <img src="/logo.png" alt="AyuSetu Logo" className="h-12 w-12 object-contain" />
-              <span className="brand-wordmark text-3xl leading-none">
+            {/* Logo + wordmark — smaller so headline dominates */}
+            <div className="flex items-center gap-2.5 mb-6">
+              <img src="/logo.png" alt="AyuSetu Logo" className="h-9 w-9 object-contain" />
+              <span className="brand-wordmark text-2xl leading-none">
                 <span className="brand-ayu">Ayu</span>
                 <span className="brand-setu">Setu</span>
               </span>
+              {/* Pill sub-badge */}
+              <span
+                className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ml-1"
+                style={{
+                  background: 'rgba(13,148,136,0.10)',
+                  color: '#0a6e64',
+                  border: '1px solid rgba(13,148,136,0.20)',
+                }}
+              >
+                Multispeciality
+              </span>
             </div>
 
-            {/* Main headline */}
+            {/* Main headline — clear visual apex */}
             <h1
-              className="text-5xl sm:text-6xl font-extrabold leading-tight tracking-tight text-slate-800 dark:text-slate-100 mb-5"
+              className="text-5xl sm:text-6xl font-extrabold leading-[1.1] tracking-tight text-slate-800 dark:text-slate-100 mb-5"
               style={{ fontFamily: "'Baloo 2', 'Inter', sans-serif" }}
             >
-              Smarter Care,{' '}<br />
-              <span style={{ color: '#0f9b8e', textDecoration: 'underline', textDecorationColor: '#0f9b8e55', textUnderlineOffset: '6px' }}>
+              Smarter Care,<br />
+              <span style={{
+                color: '#0d9488',
+                textDecoration: 'underline',
+                textDecorationColor: 'rgba(13,148,136,0.35)',
+                textUnderlineOffset: '7px',
+                textDecorationThickness: '3px',
+              }}>
                 Seamlessly
               </span>{' '}Connected
             </h1>
 
             {/* Benefit-specific subtext */}
-            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 font-medium leading-relaxed mb-2">
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 font-medium leading-relaxed mb-1.5">
               AI symptom triage surfaces what matters before your doctor even walks in.
             </p>
             <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 font-medium leading-relaxed mb-8">
               Book consultations instantly, then let automated follow-ups handle the rest.
             </p>
 
-            {/* CTAs */}
+            {/* CTAs — left-aligned, unchanged styles */}
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 id="hero-login-btn"
@@ -286,20 +364,18 @@ const LandingPage = () => {
 
           {/* ── RIGHT COLUMN (40%) ── */}
           <div className="flex-none w-full lg:w-[40%] flex items-center justify-center lg:justify-end">
-            {/* Floating triage card */}
-            <div
-              className="relative w-full max-w-sm"
-              style={{ perspective: '800px' }}
-            >
-              {/* Subtle decorative ring behind card */}
+            {/* Floating triage card wrapper */}
+            <div className="relative w-full max-w-sm" style={{ perspective: '900px' }}>
+
+              {/* Glow ring behind card */}
               <div
                 aria-hidden="true"
                 style={{
                   position: 'absolute',
-                  inset: '-20px',
+                  inset: '-18px',
                   borderRadius: '28px',
-                  background: 'linear-gradient(135deg, #0f9b8e18, #1e3a5f12)',
-                  filter: 'blur(12px)',
+                  background: 'linear-gradient(135deg, rgba(13,148,136,0.12), rgba(30,58,95,0.08))',
+                  filter: 'blur(14px)',
                   zIndex: 0,
                 }}
               />
@@ -308,83 +384,79 @@ const LandingPage = () => {
               <div
                 className="relative bg-white dark:bg-slate-800 rounded-2xl p-6"
                 style={{
-                  boxShadow: '0 24px 60px -8px rgba(15,155,142,0.18), 0 8px 24px -4px rgba(30,58,95,0.10)',
-                  border: '1px solid rgba(15,155,142,0.12)',
+                  boxShadow: '0 28px 64px -8px rgba(13,148,136,0.20), 0 8px 24px -4px rgba(30,58,95,0.12)',
+                  border: '1px solid rgba(13,148,136,0.14)',
                   zIndex: 1,
                   animation: 'heroCardFloat 5s ease-in-out infinite',
                 }}
               >
-                {/* Card icon */}
+                {/* Teal icon pill */}
                 <div
                   className="inline-flex items-center justify-center mb-4 rounded-xl"
                   style={{
                     width: '48px',
                     height: '48px',
-                    background: 'linear-gradient(135deg, #0f9b8e, #0a6e64)',
-                    boxShadow: '0 4px 12px rgba(15,155,142,0.35)',
+                    background: 'linear-gradient(135deg, #0d9488, #0a6e64)',
+                    boxShadow: '0 4px 14px rgba(13,148,136,0.38)',
                   }}
                 >
                   <Brain className="h-6 w-6 text-white" />
                 </div>
 
-                {/* Card heading */}
-                <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 mb-2 tracking-tight">
+                <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 mb-1.5 tracking-tight">
                   AI-Powered Triage
                 </h2>
 
-                {/* Card body text */}
                 <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
                   Gemini AI analyses your symptoms before the visit and delivers an urgency-ranked summary directly to your doctor.
                 </p>
 
-                {/* Verified badge */}
+                {/* ✓ Verified Doctors badge */}
                 <span
                   className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
                   style={{
                     background: 'linear-gradient(90deg, #e6f7f6, #c0eceb)',
                     color: '#0a6e64',
-                    border: '1px solid #87d8d680',
+                    border: '1px solid rgba(135,216,214,0.55)',
                   }}
                 >
                   <BadgeCheck className="h-3.5 w-3.5" />
-                  ✓ Verified Clinic Network
+                  ✓ Verified Doctors
                 </span>
 
                 {/* Mini stat row */}
-                <div className="flex gap-4 mt-5 pt-4 border-t border-slate-100 dark:border-slate-700">
-                  <div className="text-center">
-                    <p className="text-xl font-extrabold" style={{ color: '#0f9b8e' }}>98%</p>
-                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Accuracy</p>
+                <div className="flex gap-5 mt-5 pt-4 border-t border-slate-100 dark:border-slate-700">
+                  <div>
+                    <p className="text-xl font-extrabold" style={{ color: '#0d9488' }}>98%</p>
+                    <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Accuracy</p>
                   </div>
-                  <div className="text-center">
+                  <div>
                     <p className="text-xl font-extrabold text-slate-800 dark:text-slate-100">&lt;2 min</p>
-                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Triage Time</p>
+                    <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Triage</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-xl font-extrabold text-slate-800 dark:text-slate-100">3 roles</p>
-                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Portals</p>
+                  <div>
+                    <p className="text-xl font-extrabold text-slate-800 dark:text-slate-100">3</p>
+                    <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Role Portals</p>
                   </div>
                 </div>
               </div>
 
-              {/* Secondary micro-card — Appointment confirmed */}
+              {/* Micro-card — Appointment confirmed, offset bottom-left */}
               <div
-                className="absolute -bottom-6 -left-6 bg-white dark:bg-slate-800 rounded-xl px-4 py-3 flex items-center gap-3"
+                className="absolute -bottom-5 -left-5 bg-white dark:bg-slate-800 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5"
                 style={{
-                  boxShadow: '0 8px 24px -4px rgba(30,58,95,0.14)',
-                  border: '1px solid rgba(30,58,95,0.08)',
+                  boxShadow: '0 8px 24px -4px rgba(30,58,95,0.16)',
+                  border: '1px solid rgba(30,58,95,0.09)',
                   animation: 'heroCardFloat 5s ease-in-out 2.5s infinite',
+                  zIndex: 2,
                 }}
               >
-                <div
-                  className="flex-none rounded-lg p-1.5"
-                  style={{ background: '#e6f7f6' }}
-                >
-                  <Stethoscope className="h-4 w-4" style={{ color: '#0f9b8e' }} />
+                <div className="flex-none rounded-lg p-1.5" style={{ background: '#e6f7f6' }}>
+                  <Stethoscope className="h-4 w-4" style={{ color: '#0d9488' }} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-800 dark:text-slate-100">Appointment Confirmed</p>
-                  <p className="text-[10px] text-slate-400">Dr. Ananya Reddy · Today 10:30 AM</p>
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight">Appointment Confirmed</p>
+                  <p className="text-[10px] text-slate-400 leading-tight">Dr. Ananya Reddy · Today 10:30 AM</p>
                 </div>
               </div>
             </div>
@@ -393,11 +465,11 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Keyframe for card float animation */}
+      {/* Keyframe for hero card float */}
       <style>{`
         @keyframes heroCardFloat {
           0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
+          50%       { transform: translateY(-9px); }
         }
       `}</style>
 
