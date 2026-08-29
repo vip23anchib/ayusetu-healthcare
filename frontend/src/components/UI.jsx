@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, ArrowUpRight, TrendingUp, X } from 'lucide-react';
+import { TrendingUp, X } from 'lucide-react';
 
 // Card Component with dark mode, elevated contrast, and optional glassmorphism
 export const Card = ({ 

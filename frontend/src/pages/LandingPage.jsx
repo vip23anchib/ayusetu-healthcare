@@ -13,23 +13,12 @@ import {
   Sun,
   Moon,
   ExternalLink,
-  ChevronRight,
-  Stethoscope,
-  BadgeCheck,
   Sparkles,
   Zap,
-  Activity,
   CheckCircle2,
   Lock,
-  Clock,
-  Heart,
   Star,
-  Users,
-  ChevronDown,
-  ArrowUpRight,
-  Shield,
-  Search,
-  MessageSquare
+  ChevronDown
 } from 'lucide-react';
 
 /* ─── Two-tone wordmark ─── */
@@ -262,8 +251,8 @@ const LandingPage = () => {
     setTimeout(() => {
       // Pick matching or default to medium
       const matched = SAMPLE_SYMPTOMS.find(s => 
-        customSymptom.toLowerCase().includes('chest') || 
-        customSymptom.toLowerCase().includes('heart')
+        s.symptom.toLowerCase().includes(customSymptom.toLowerCase()) ||
+        customSymptom.toLowerCase().includes('chest')
       ) || SAMPLE_SYMPTOMS[1];
       setActiveTriageResult({
         ...matched,

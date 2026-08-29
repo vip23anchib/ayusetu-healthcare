@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import { Card, Button, Avatar, EmptyState, StatCard, Badge } from '../../components/UI';
-import { Calendar, Clock, Stethoscope, ArrowRight, Activity, Heart, Sparkles, CheckCircle2, ShieldCheck, UserCheck } from 'lucide-react';
+import { Card, Button, Avatar, EmptyState, StatCard } from '../../components/UI';
+import { Calendar, Clock, Stethoscope, ArrowRight, Activity, Heart, Sparkles, CheckCircle2 } from 'lucide-react';
 
 const PatientDashboard = () => {
   const { user } = useAuth();

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import { Mail, Lock, AlertCircle, Sun, Moon, Eye, EyeOff, Sparkles, ArrowRight, ShieldCheck, Check } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Sun, Moon, Eye, EyeOff, Sparkles, ArrowRight } from 'lucide-react';
 
 const Login = () => {
   const { login } = useAuth();

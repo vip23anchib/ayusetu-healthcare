@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../services/api';
-import { Card, Button, Avatar, EmptyState } from '../../components/UI';
-import { Search, ArrowRight, Star, Clock, Calendar, Sparkles, Filter } from 'lucide-react';
+import { Button, Avatar, EmptyState } from '../../components/UI';
+import { Search, ArrowRight, Star, Clock, Calendar } from 'lucide-react';
 
 const SPECIALTIES = [
   'All',

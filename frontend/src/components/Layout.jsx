@@ -13,10 +13,7 @@ import {
   ClipboardList,
   Sun,
   Moon,
-  Sparkles,
-  Activity,
-  ChevronRight,
-  ShieldCheck
+  ChevronRight
 } from 'lucide-react';
 
 /* Two-tone AyuSetu wordmark */
