@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import { Mail, Lock, User, AlertCircle, ShieldCheck, Sun, Moon, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, AlertCircle, Sun, Moon, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import GoogleAuthButton from '../../components/GoogleAuthButton';
 
 const Register = () => {
-  const { register } = useAuth();
+  const { register, googleAuth } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
@@ -31,6 +32,19 @@ const Register = () => {
       setError(errMsg);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credential) => {
+    setError('');
+    try {
+      const user = await googleAuth(credential, role);
+      if (user.role === 'DOCTOR') navigate('/doctor/dashboard');
+      else if (user.role === 'ADMIN') navigate('/admin/dashboard');
+      else navigate('/patient/dashboard');
+    } catch (err) {
+      const errMsg = err.response?.data?.detail || err.message || 'Google registration failed. Please try again.';
+      setError(errMsg);
     }
   };
 
@@ -85,6 +99,57 @@ const Register = () => {
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl py-8 px-6 shadow-2xl border border-slate-200/90 dark:border-slate-700/80 sm:rounded-3xl sm:px-10 space-y-5">
+          
+          {/* Role Selection for Google & Email Sign Up */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide font-display mb-1.5">
+              Account Type
+            </label>
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setRole('PATIENT')}
+                className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                  role === 'PATIENT'
+                    ? 'bg-teal-50 dark:bg-teal-950/70 border-teal-500 text-teal-700 dark:text-teal-300 shadow-sm ring-1 ring-teal-500'
+                    : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                Patient
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('DOCTOR')}
+                className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                  role === 'DOCTOR'
+                    ? 'bg-sky-50 dark:bg-sky-950/70 border-sky-500 text-sky-700 dark:text-sky-300 shadow-sm ring-1 ring-sky-500'
+                    : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                Doctor
+              </button>
+            </div>
+          </div>
+
+          {/* Google Sign-Up */}
+          <div className="space-y-4">
+            <GoogleAuthButton
+              onSuccess={handleGoogleSuccess}
+              onError={(err) => setError(err.message || 'Google registration failed.')}
+              text={`Sign up as ${role === 'DOCTOR' ? 'Doctor' : 'Patient'} with Google`}
+              role={role}
+              disabled={submitting}
+            />
+
+            <div className="relative flex items-center justify-center">
+              <div className="border-t border-slate-200 dark:border-slate-700 w-full" />
+              <span className="bg-white dark:bg-slate-800 px-3 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider shrink-0 font-display">
+                Or register with email
+              </span>
+              <div className="border-t border-slate-200 dark:border-slate-700 w-full" />
+            </div>
+          </div>
+
           <form className="space-y-4.5" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 p-3.5 rounded-xl flex items-start space-x-2.5">
@@ -159,36 +224,6 @@ const Register = () => {
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide font-display mb-1.5">
-                Registering As
-              </label>
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setRole('PATIENT')}
-                  className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                    role === 'PATIENT'
-                      ? 'bg-teal-50 dark:bg-teal-950/70 border-teal-500 text-teal-700 dark:text-teal-300 shadow-sm'
-                      : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
-                  }`}
-                >
-                  Patient Account
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole('DOCTOR')}
-                  className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                    role === 'DOCTOR'
-                      ? 'bg-sky-50 dark:bg-sky-950/70 border-sky-500 text-sky-700 dark:text-sky-300 shadow-sm'
-                      : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
-                  }`}
-                >
-                  Doctor Account
                 </button>
               </div>
             </div>

@@ -58,6 +58,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const googleAuth = async (credential, role = 'PATIENT') => {
+    setLoading(true);
+    try {
+      const response = await API.post('auth/google/', { credential, role });
+      const { access, refresh, user: userData } = response.data;
+      localStorage.setItem('access_token', access);
+      localStorage.setItem('refresh_token', refresh);
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      setLoading(false);
+      throw error;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -66,7 +81,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, reloadProfile: fetchProfile }}>
+    <AuthContext.Provider value={{ user, loading, login, register, googleAuth, loginWithGoogle: googleAuth, logout, reloadProfile: fetchProfile }}>
       {children}
     </AuthContext.Provider>
   );

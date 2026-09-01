@@ -3,9 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Mail, Lock, AlertCircle, Sun, Moon, Eye, EyeOff, Sparkles, ArrowRight } from 'lucide-react';
+import GoogleAuthButton from '../../components/GoogleAuthButton';
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   
@@ -29,6 +30,19 @@ const Login = () => {
       setError(errMsg);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credential) => {
+    setError('');
+    try {
+      const user = await loginWithGoogle(credential);
+      if (user.role === 'DOCTOR') navigate('/doctor/dashboard');
+      else if (user.role === 'ADMIN') navigate('/admin/dashboard');
+      else navigate('/patient/dashboard');
+    } catch (err) {
+      const errMsg = err.response?.data?.detail || err.message || 'Google sign-in failed. Please try again.';
+      setError(errMsg);
     }
   };
 
@@ -120,6 +134,24 @@ const Login = () => {
               >
                 Admin
               </button>
+            </div>
+          </div>
+
+          {/* Google Sign-In */}
+          <div className="space-y-4">
+            <GoogleAuthButton
+              onSuccess={handleGoogleSuccess}
+              onError={(err) => setError(err.message || 'Google sign-in failed.')}
+              text="Continue with Google"
+              disabled={submitting}
+            />
+
+            <div className="relative flex items-center justify-center">
+              <div className="border-t border-slate-200 dark:border-slate-700 w-full" />
+              <span className="bg-white dark:bg-slate-800 px-3 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider shrink-0 font-display">
+                Or sign in with email
+              </span>
+              <div className="border-t border-slate-200 dark:border-slate-700 w-full" />
             </div>
           </div>
 
