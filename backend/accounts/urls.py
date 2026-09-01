@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import RegisterView, LoginView, MeView
+from .views import RegisterView, LoginView, MeView, GoogleAuthView
 
 urlpatterns = [
     path('auth/register/', RegisterView.as_view(), name='register'),
     path('auth/login/', LoginView.as_view(), name='login'),
+    path('auth/google/', GoogleAuthView.as_view(), name='google-auth'),
     path('auth/me/', MeView.as_view(), name='me'),
 ]
