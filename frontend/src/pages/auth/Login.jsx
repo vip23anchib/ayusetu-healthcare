@@ -33,10 +33,10 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credential, role = 'PATIENT', extraData = {}) => {
+  const handleGoogleSuccess = async (credential) => {
     setError('');
     try {
-      const user = await loginWithGoogle(credential, role, extraData);
+      const user = await loginWithGoogle(credential);
       if (user.role === 'DOCTOR') navigate('/doctor/dashboard');
       else if (user.role === 'ADMIN') navigate('/admin/dashboard');
       else navigate('/patient/dashboard');

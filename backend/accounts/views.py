@@ -1,3 +1,4 @@
+import os
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -52,59 +53,49 @@ class GoogleAuthView(generics.GenericAPIView):
         if role not in [User.Role.PATIENT, User.Role.DOCTOR, User.Role.ADMIN]:
             role = User.Role.PATIENT
 
-        client_id = getattr(settings, 'GOOGLE_CLIENT_ID', '') or None
-        is_mock_token = str(credential).startswith('mock_google_token')
+        client_id = getattr(settings, 'GOOGLE_CLIENT_ID', '') or os.getenv('VITE_GOOGLE_CLIENT_ID', '') or None
 
-        if is_mock_token and (settings.DEBUG or not client_id):
-            # Development / Demo sandbox fallback for Google Sign-In
-            email = request.data.get('email') or 'google.demo@ayusetu.com'
-            name = request.data.get('name') or (email.split('@')[0].replace('.', ' ').title())
-            id_info = {
-                'email': email.strip().lower(),
-                'name': name.strip(),
-                'sub': f'mock_google_sub_{email}'
-            }
-        else:
-            try:
-                # Verify the Google OAuth2 / ID token
-                id_info = id_token.verify_oauth2_token(
-                    credential,
-                    google_requests.Request(),
-                    audience=client_id
-                )
-            except ValueError as e:
-                return Response({'detail': f'Invalid Google token: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
-            except Exception as e:
-                return Response({'detail': f'Google authentication failed: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            # Verify the Google OAuth2 / ID token cryptographically on backend
+            id_info = id_token.verify_oauth2_token(
+                credential,
+                google_requests.Request(),
+                audience=client_id
+            )
+        except ValueError as e:
+            return Response({'detail': f'Invalid or expired Google token: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'detail': f'Google authentication failed: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
-        email = id_info.get('email')
+        # Require verified Google email
+        email_verified = id_info.get('email_verified')
+        if not email_verified:
+            return Response({'detail': 'Google account email is not verified.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        email = id_info.get('email', '').strip().lower()
         if not email:
-            return Response({'detail': 'Google account must have an email associated.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Google account must have a verified email associated.'}, status=status.HTTP_400_BAD_REQUEST)
 
         name = id_info.get('name') or id_info.get('given_name') or email.split('@')[0]
         
+        # User resolution: Check by verified email
         user = User.objects.filter(email__iexact=email).first()
         is_created = False
 
         if user:
             if not user.is_active:
                 return Response({'detail': 'User account is disabled.'}, status=status.HTTP_400_BAD_REQUEST)
+            # Existing user: strictly preserve their existing account and role (DOCTOR/PATIENT/ADMIN)
         else:
-            # Create a new user for Google Sign-In
+            # Create a new user for Google Sign-In with safe default role: PATIENT
+            # Never grant DOCTOR or ADMIN privileges to a newly registered Google account
             user = User.objects.create_user(
                 email=email,
                 name=name,
                 password=get_random_string(32),
-                role=role
+                role=User.Role.PATIENT
             )
             is_created = True
-
-            # If registered as DOCTOR, automatically create doctor profile
-            if role == User.Role.DOCTOR:
-                Doctor.objects.get_or_create(
-                    user=user,
-                    defaults={'specialization': 'General Medicine'}
-                )
 
         refresh = RefreshToken.for_user(user)
         response_status = status.HTTP_201_CREATED if is_created else status.HTTP_200_OK

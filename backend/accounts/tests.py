@@ -77,57 +77,77 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     @patch('google.oauth2.id_token.verify_oauth2_token')
-    def test_google_auth_login_existing_user(self, mock_verify):
+    def test_google_auth_login_existing_doctor(self, mock_verify):
         mock_verify.return_value = {
-            'email': 'existing.google@example.com',
-            'name': 'Existing Google User',
-            'sub': '123456789'
+            'email': 'existing.doctor@example.com',
+            'name': 'Existing Doctor',
+            'sub': '123456789',
+            'email_verified': True
         }
-        User.objects.create_user(
-            email='existing.google@example.com',
-            name='Existing Google User',
-            role='PATIENT'
+        doctor_user = User.objects.create_user(
+            email='existing.doctor@example.com',
+            name='Existing Doctor',
+            role='DOCTOR'
         )
-        response = self.client.post(self.google_auth_url, {'credential': 'valid_mock_token'})
+        Doctor.objects.create(user=doctor_user, specialization='Cardiology')
+
+        response = self.client.post(self.google_auth_url, {'credential': 'valid_google_token'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access', response.data)
-        self.assertEqual(response.data['user']['email'], 'existing.google@example.com')
+        self.assertEqual(response.data['user']['email'], 'existing.doctor@example.com')
+        self.assertEqual(response.data['user']['role'], 'DOCTOR')
         self.assertFalse(response.data['is_new_user'])
 
     @patch('google.oauth2.id_token.verify_oauth2_token')
-    def test_google_auth_register_new_patient(self, mock_verify):
+    def test_google_auth_register_new_user_safe_patient_role(self, mock_verify):
         mock_verify.return_value = {
-            'email': 'new.patient@example.com',
-            'name': 'New Patient',
-            'sub': '987654321'
+            'email': 'new.user@example.com',
+            'name': 'New Google User',
+            'sub': '987654321',
+            'email_verified': True
         }
+        # Even if frontend requests DOCTOR or ADMIN role, new Google users must strictly get PATIENT
         response = self.client.post(self.google_auth_url, {
-            'credential': 'valid_mock_token',
-            'role': 'PATIENT'
-        })
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIn('access', response.data)
-        self.assertEqual(response.data['user']['email'], 'new.patient@example.com')
-        self.assertEqual(response.data['user']['role'], 'PATIENT')
-        self.assertTrue(response.data['is_new_user'])
-        self.assertTrue(User.objects.filter(email='new.patient@example.com').exists())
-
-    @patch('google.oauth2.id_token.verify_oauth2_token')
-    def test_google_auth_register_new_doctor(self, mock_verify):
-        mock_verify.return_value = {
-            'email': 'new.doctor@example.com',
-            'name': 'Dr. New Doctor',
-            'sub': '555555555'
-        }
-        response = self.client.post(self.google_auth_url, {
-            'credential': 'valid_mock_token',
+            'credential': 'valid_google_token',
             'role': 'DOCTOR'
         })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('access', response.data)
-        self.assertEqual(response.data['user']['role'], 'DOCTOR')
-        user = User.objects.get(email='new.doctor@example.com')
-        self.assertTrue(Doctor.objects.filter(user=user).exists())
+        self.assertEqual(response.data['user']['email'], 'new.user@example.com')
+        self.assertEqual(response.data['user']['role'], 'PATIENT')
+        self.assertTrue(response.data['is_new_user'])
+        user = User.objects.get(email='new.user@example.com')
+        self.assertEqual(user.role, User.Role.PATIENT)
+
+    @patch('google.oauth2.id_token.verify_oauth2_token')
+    def test_google_auth_unverified_email_rejected(self, mock_verify):
+        mock_verify.return_value = {
+            'email': 'unverified@example.com',
+            'name': 'Unverified User',
+            'sub': '11223344',
+            'email_verified': False
+        }
+        response = self.client.post(self.google_auth_url, {'credential': 'valid_google_token'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('not verified', response.data['detail'])
+
+    @patch('google.oauth2.id_token.verify_oauth2_token')
+    def test_google_auth_disabled_user_rejected(self, mock_verify):
+        mock_verify.return_value = {
+            'email': 'disabled@example.com',
+            'name': 'Disabled User',
+            'sub': '99887766',
+            'email_verified': True
+        }
+        User.objects.create_user(
+            email='disabled@example.com',
+            name='Disabled User',
+            role='PATIENT',
+            is_active=False
+        )
+        response = self.client.post(self.google_auth_url, {'credential': 'valid_google_token'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('disabled', response.data['detail'])
 
     def test_google_auth_missing_credential(self):
         response = self.client.post(self.google_auth_url, {})
@@ -138,31 +158,5 @@ class AuthTests(APITestCase):
         mock_verify.side_effect = ValueError("Token expired")
         response = self.client.post(self.google_auth_url, {'credential': 'invalid_token'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('Invalid Google token', response.data['detail'])
-
-    def test_google_auth_sandbox_patient(self):
-        response = self.client.post(self.google_auth_url, {
-            'credential': 'mock_google_token_test_patient',
-            'email': 'sandbox.patient@example.com',
-            'name': 'Sandbox Patient',
-            'role': 'PATIENT'
-        })
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIn('access', response.data)
-        self.assertEqual(response.data['user']['email'], 'sandbox.patient@example.com')
-        self.assertEqual(response.data['user']['role'], 'PATIENT')
-        self.assertTrue(User.objects.filter(email='sandbox.patient@example.com').exists())
-
-    def test_google_auth_sandbox_doctor(self):
-        response = self.client.post(self.google_auth_url, {
-            'credential': 'mock_google_token_test_doctor',
-            'email': 'sandbox.doctor@example.com',
-            'name': 'Dr. Sandbox Doctor',
-            'role': 'DOCTOR'
-        })
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIn('access', response.data)
-        self.assertEqual(response.data['user']['role'], 'DOCTOR')
-        user = User.objects.get(email='sandbox.doctor@example.com')
-        self.assertTrue(Doctor.objects.filter(user=user).exists())
+        self.assertIn('Invalid or expired Google token', response.data['detail'])
 

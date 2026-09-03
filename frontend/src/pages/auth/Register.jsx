@@ -35,10 +35,10 @@ const Register = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credential, selectedRole = role, extraData = {}) => {
+  const handleGoogleSuccess = async (credential) => {
     setError('');
     try {
-      const user = await googleAuth(credential, selectedRole || role, extraData);
+      const user = await googleAuth(credential);
       if (user.role === 'DOCTOR') navigate('/doctor/dashboard');
       else if (user.role === 'ADMIN') navigate('/admin/dashboard');
       else navigate('/patient/dashboard');
@@ -136,8 +136,7 @@ const Register = () => {
             <GoogleAuthButton
               onSuccess={handleGoogleSuccess}
               onError={(err) => setError(err.message || 'Google registration failed.')}
-              text={`Sign up as ${role === 'DOCTOR' ? 'Doctor' : 'Patient'} with Google`}
-              role={role}
+              text="Sign up with Google"
               disabled={submitting}
             />
 
