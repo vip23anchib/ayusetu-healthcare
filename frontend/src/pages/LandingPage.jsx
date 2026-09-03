@@ -1081,6 +1081,11 @@ const LandingPage = () => {
                 <li><Link to="/login" className="hover:text-white transition-colors">Admin Command Center</Link></li>
                 <li><Link to="/register" className="hover:text-white transition-colors">Register New Patient</Link></li>
               </ul>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-white font-display pt-3">Legal</h4>
+              <ul className="space-y-2 text-xs text-slate-400">
+                <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+              </ul>
             </div>
 
             {/* Tech Stack */}
@@ -1110,7 +1115,11 @@ const LandingPage = () => {
 
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
             <p>© 2026 AyuSetu Multispeciality Clinic. All rights reserved.</p>
-            <p>Designed with modern high-contrast aesthetic and real-time LLM integration.</p>
+            <div className="flex items-center gap-4">
+              <Link to="/privacy-policy" className="hover:text-slate-300 transition-colors">Privacy Policy</Link>
+              <Link to="/terms" className="hover:text-slate-300 transition-colors">Terms of Service</Link>
+              <p>Designed with modern high-contrast aesthetic and real-time LLM integration.</p>
+            </div>
           </div>
         </div>
       </footer>

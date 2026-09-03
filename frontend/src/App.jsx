@@ -8,6 +8,10 @@ import Layout from './components/Layout';
 // Landing page
 import LandingPage from './pages/LandingPage';
 
+// Legal / Public pages
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
+
 // Auth pages
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -99,6 +103,11 @@ function App() {
 
             {/* Landing page & fallback routing */}
             <Route path="/" element={<LandingPage />} />
+
+            {/* Public legal pages */}
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<Terms />} />
+
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
