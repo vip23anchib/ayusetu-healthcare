@@ -30,11 +30,13 @@ const GoogleAuthButton = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [buttonRendered, setButtonRendered] = useState(false);
   const buttonContainerRef = useRef(null);
   const hiddenBtnRef = useRef(null);
+  const renderedConfigRef = useRef('');
+
   const themeContext = useTheme();
   const theme = themeContext?.theme || 'light';
-
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
   const handleCredentialResponse = async (response) => {
@@ -57,10 +59,50 @@ const GoogleAuthButton = ({
     }
   };
 
-  const initializeGoogleGSI = () => {
-    if (!window.google?.accounts?.id || !clientId) return;
+  // 1. Load Google Identity Services script
+  useEffect(() => {
+    if (!clientId) return;
+
+    if (window.google?.accounts?.id) {
+      setScriptLoaded(true);
+      return;
+    }
+
+    const existingScript = document.getElementById('google-gsi-client');
+    if (existingScript) {
+      const handleLoad = () => setScriptLoaded(true);
+      existingScript.addEventListener('load', handleLoad);
+      if (window.google?.accounts?.id) {
+        setScriptLoaded(true);
+      }
+      return () => {
+        existingScript.removeEventListener('load', handleLoad);
+      };
+    }
+
+    const script = document.createElement('script');
+    script.id = 'google-gsi-client';
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => setScriptLoaded(true);
+    script.onerror = () => {
+      if (onError) {
+        onError(
+          new Error('Failed to load Google Identity Services. Check your internet connection or adblocker.')
+        );
+      }
+    };
+    document.body.appendChild(script);
+  }, [clientId]);
+
+  // 2. Dedicated useEffect to initialize GIS and render button after container is mounted
+  useEffect(() => {
+    if (!clientId || !scriptLoaded || !window.google?.accounts?.id) return;
+    if (!buttonContainerRef.current) return;
 
     try {
+      // Safe initialization
       window.google.accounts.id.initialize({
         client_id: clientId,
         callback: handleCredentialResponse,
@@ -69,8 +111,9 @@ const GoogleAuthButton = ({
         itp_support: true,
       });
 
-      // Render official Google button inside the container
-      if (buttonContainerRef.current) {
+      // Avoid duplicate renderButton calls with identical configuration
+      const configKey = `${clientId}-${theme}-${text}`;
+      if (renderedConfigRef.current !== configKey) {
         buttonContainerRef.current.innerHTML = '';
         window.google.accounts.id.renderButton(buttonContainerRef.current, {
           theme: theme === 'dark' ? 'filled_black' : 'outline',
@@ -81,53 +124,30 @@ const GoogleAuthButton = ({
           logo_alignment: 'left',
           width: 360,
         });
-      }
 
-      // Also render a hidden fallback trigger button for custom click handling
-      if (hiddenBtnRef.current) {
-        hiddenBtnRef.current.innerHTML = '';
-        window.google.accounts.id.renderButton(hiddenBtnRef.current, {
-          theme: 'outline',
-          size: 'large',
-          type: 'standard',
-        });
+        // Also render into hiddenBtnRef for programmatic fallback triggers
+        if (hiddenBtnRef.current) {
+          hiddenBtnRef.current.innerHTML = '';
+          window.google.accounts.id.renderButton(hiddenBtnRef.current, {
+            theme: 'outline',
+            size: 'large',
+            type: 'standard',
+          });
+        }
+
+        renderedConfigRef.current = configKey;
+
+        // Check if GIS populated the container with an iframe/button
+        setTimeout(() => {
+          if (buttonContainerRef.current && buttonContainerRef.current.children.length > 0) {
+            setButtonRendered(true);
+          }
+        }, 50);
       }
     } catch (err) {
-      console.error('Failed to initialize Google Identity Services:', err);
+      console.error('Google Identity Services initialization/render error:', err);
     }
-  };
-
-  // Load Google Identity Services script
-  useEffect(() => {
-    if (!clientId) return;
-
-    const existingScript = document.getElementById('google-gsi-client');
-    if (existingScript) {
-      setScriptLoaded(true);
-      if (window.google?.accounts?.id) {
-        initializeGoogleGSI();
-      }
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.id = 'google-gsi-client';
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      setScriptLoaded(true);
-      initializeGoogleGSI();
-    };
-    script.onerror = () => {
-      if (onError) {
-        onError(
-          new Error('Failed to load Google Identity Services. Check your internet connection or adblocker.')
-        );
-      }
-    };
-    document.body.appendChild(script);
-  }, [clientId, theme]);
+  }, [clientId, scriptLoaded, theme, text]);
 
   const handleCustomButtonClick = () => {
     if (disabled || loading) return;
@@ -145,10 +165,9 @@ const GoogleAuthButton = ({
 
     if (window.google?.accounts?.id) {
       try {
-        // Attempt One Tap prompt first
+        // Attempt Google One Tap prompt first
         window.google.accounts.id.prompt((notification) => {
           if (notification.isNotDisplayed() || notification.isSkippedMomentum()) {
-            // If One Tap was not displayed, trigger native button click
             const nativeBtn =
               buttonContainerRef.current?.querySelector('div[role="button"]') ||
               hiddenBtnRef.current?.querySelector('div[role="button"]');
@@ -181,15 +200,17 @@ const GoogleAuthButton = ({
         </div>
       )}
 
-      {/* If clientId exists and script is loaded, display official GIS button container */}
-      {!loading && clientId && scriptLoaded && (
-        <div className="flex justify-center w-full min-h-[44px]">
-          <div ref={buttonContainerRef} className="w-full flex justify-center" />
-        </div>
-      )}
+      {/* Official GIS button container: ALWAYS mounted in the DOM so buttonContainerRef is never null */}
+      <div
+        className={`w-full flex justify-center min-h-[44px] ${
+          loading || !buttonRendered ? 'hidden' : ''
+        }`}
+      >
+        <div ref={buttonContainerRef} className="w-full flex justify-center" />
+      </div>
 
-      {/* Fallback button when GSI is loading or if VITE_GOOGLE_CLIENT_ID is not configured */}
-      {!loading && (!clientId || !scriptLoaded) && (
+      {/* Resilient styled button: shown when loading is false and GIS button is not yet rendered or fallback is active */}
+      {!loading && !buttonRendered && (
         <button
           type="button"
           onClick={handleCustomButtonClick}
