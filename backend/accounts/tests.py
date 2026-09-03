@@ -140,3 +140,29 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('Invalid Google token', response.data['detail'])
 
+    def test_google_auth_sandbox_patient(self):
+        response = self.client.post(self.google_auth_url, {
+            'credential': 'mock_google_token_test_patient',
+            'email': 'sandbox.patient@example.com',
+            'name': 'Sandbox Patient',
+            'role': 'PATIENT'
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('access', response.data)
+        self.assertEqual(response.data['user']['email'], 'sandbox.patient@example.com')
+        self.assertEqual(response.data['user']['role'], 'PATIENT')
+        self.assertTrue(User.objects.filter(email='sandbox.patient@example.com').exists())
+
+    def test_google_auth_sandbox_doctor(self):
+        response = self.client.post(self.google_auth_url, {
+            'credential': 'mock_google_token_test_doctor',
+            'email': 'sandbox.doctor@example.com',
+            'name': 'Dr. Sandbox Doctor',
+            'role': 'DOCTOR'
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('access', response.data)
+        self.assertEqual(response.data['user']['role'], 'DOCTOR')
+        user = User.objects.get(email='sandbox.doctor@example.com')
+        self.assertTrue(Doctor.objects.filter(user=user).exists())
+

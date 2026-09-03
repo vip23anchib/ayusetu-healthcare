@@ -52,18 +52,30 @@ class GoogleAuthView(generics.GenericAPIView):
         if role not in [User.Role.PATIENT, User.Role.DOCTOR, User.Role.ADMIN]:
             role = User.Role.PATIENT
 
-        try:
-            client_id = getattr(settings, 'GOOGLE_CLIENT_ID', '') or None
-            # Verify the Google OAuth2 / ID token
-            id_info = id_token.verify_oauth2_token(
-                credential,
-                google_requests.Request(),
-                audience=client_id
-            )
-        except ValueError as e:
-            return Response({'detail': f'Invalid Google token: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({'detail': f'Google authentication failed: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+        client_id = getattr(settings, 'GOOGLE_CLIENT_ID', '') or None
+        is_mock_token = str(credential).startswith('mock_google_token')
+
+        if is_mock_token and (settings.DEBUG or not client_id):
+            # Development / Demo sandbox fallback for Google Sign-In
+            email = request.data.get('email') or 'google.demo@ayusetu.com'
+            name = request.data.get('name') or (email.split('@')[0].replace('.', ' ').title())
+            id_info = {
+                'email': email.strip().lower(),
+                'name': name.strip(),
+                'sub': f'mock_google_sub_{email}'
+            }
+        else:
+            try:
+                # Verify the Google OAuth2 / ID token
+                id_info = id_token.verify_oauth2_token(
+                    credential,
+                    google_requests.Request(),
+                    audience=client_id
+                )
+            except ValueError as e:
+                return Response({'detail': f'Invalid Google token: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({'detail': f'Google authentication failed: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
         email = id_info.get('email')
         if not email:

@@ -35,10 +35,10 @@ const Register = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credential) => {
+  const handleGoogleSuccess = async (credential, selectedRole = role, extraData = {}) => {
     setError('');
     try {
-      const user = await googleAuth(credential, role);
+      const user = await googleAuth(credential, selectedRole || role, extraData);
       if (user.role === 'DOCTOR') navigate('/doctor/dashboard');
       else if (user.role === 'ADMIN') navigate('/admin/dashboard');
       else navigate('/patient/dashboard');

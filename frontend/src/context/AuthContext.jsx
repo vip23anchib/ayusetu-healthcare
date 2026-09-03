@@ -58,10 +58,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const googleAuth = async (credential, role = 'PATIENT') => {
+  const googleAuth = async (credential, role = 'PATIENT', extraData = {}) => {
     setLoading(true);
     try {
-      const response = await API.post('auth/google/', { credential, role });
+      const payload = { credential, role };
+      if (extraData?.email) payload.email = extraData.email;
+      if (extraData?.name) payload.name = extraData.name;
+      const response = await API.post('auth/google/', payload);
       const { access, refresh, user: userData } = response.data;
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
