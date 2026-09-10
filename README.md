@@ -22,8 +22,6 @@
 
 ---
 
-## 🎯 Problem Statement
-
 Scheduling clinic appointments in India is still largely phone-based — leading to double-bookings, missed follow-ups, and doctors walking into consultations with no structured information about the patient.
 
 **AyuSetu** solves this end-to-end: patients self-book slots and submit symptoms before their visit, doctors get an AI-generated triage summary and a structured consultation workflow, and clinic admins get full oversight of schedules, leaves, and appointment activity — all backed by concurrency-safe booking and automated email notifications.
@@ -330,13 +328,7 @@ Built under a 2-day MVP constraint. The following were intentionally simplified:
 6. **Email in dev** uses the `console` backend — emails print to the terminal instead of reaching real inboxes.
 7. **No file uploads** — patient documents, images, and lab reports are out of scope for this MVP.
 
----
 
-## 📄 License
-
-Built for the AyuSetu Healthcare MVP Assignment.
-
----
 
 <div align="center">
 
